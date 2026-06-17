@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KinetFit — 你的身体几岁了 · 体能年龄 · 本地大模型 · 完全离线</title>
+<meta name="description" content="">
+<meta property="og:title" content="KinetFit — 你的身体几岁了">
+<meta property="og:description" content="">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#08070a; --bg-soft:#100d0b; --surface:#181410; --surface-2:#201a15;
+    --border:rgba(255,255,255,.07); --border-strong:rgba(255,255,255,.13);
+    --text:#faf5f0; --text-dim:#bcb0a4; --text-faint:rgba(160,148,138,.55);
+    --orange:#FF6B35; --orange-deep:#FF4D1F; --amber:#FFA630; --gold:#FFD60A;
+    --red:#FF453A; --green:#34C759; --blue:#5ac8fa; --violet:#BF5AF2;
+    --grad:linear-gradient(120deg,#FF6B35 0%,#FF9F0A 48%,#FFD60A 100%);
+    --grad-soft:linear-gradient(135deg,rgba(255,107,53,.18),rgba(255,167,48,.08));
+    --maxw:1140px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue",sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  ::selection{background:rgba(255,107,53,.4)}
+  a{color:inherit;text-decoration:none}
+  .ambient{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .blob{position:absolute;border-radius:50%;filter:blur(150px);opacity:.32;animation:float 24s ease-in-out infinite}
+  .blob.b1{width:660px;height:660px;background:#FF6B35;top:-220px;left:-160px}
+  .blob.b2{width:560px;height:560px;background:#FFA630;top:32%;right:-180px;animation-delay:-8s}
+  .blob.b3{width:480px;height:480px;background:#FF453A;bottom:-220px;left:38%;animation-delay:-16s;opacity:.18}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(50px,-60px) scale(1.08)}66%{transform:translate(-40px,50px) scale(.94)}}
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);background:rgba(8,7,10,.72);border-bottom:1px solid var(--border)}
+  .nav-in{max-width:var(--maxw);margin:0 auto;padding:13px 28px;display:flex;align-items:center;gap:18px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.02em;font-size:16px}
+  .logo{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;flex-shrink:0;position:relative;overflow:hidden;box-shadow:0 4px 18px rgba(255,107,53,.5)}
+  .logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+  .nav-links{margin-left:auto;display:flex;gap:4px;align-items:center}
+  .nav-links a{padding:7px 13px;border-radius:8px;font-size:13.5px;color:var(--text-dim);transition:.18s;font-weight:500}
+  .nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+  .lang-switch{display:flex;gap:2px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:3px}
+  .lang-switch button{background:none;border:none;color:var(--text-faint);font-size:12px;font-weight:700;padding:5px 9px;border-radius:7px;cursor:pointer;font-family:inherit;transition:.15s;line-height:1}
+  .lang-switch button:hover{color:var(--text)}
+  .lang-switch button.active{background:var(--grad);color:#1a0d00}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:11px;font-weight:700;font-size:14px;transition:.2s;cursor:pointer;border:none;font-family:inherit;white-space:nowrap}
+  .btn-apple{background:#fff;color:#000}
+  .btn-apple:hover{transform:translateY(-2px);box-shadow:0 12px 30px -8px rgba(255,255,255,.4)}
+  .btn-grad{background:var(--grad);color:#1a0d00;box-shadow:0 10px 28px -8px rgba(255,107,53,.55)}
+  .btn-grad:hover{transform:translateY(-2px);box-shadow:0 16px 36px -10px rgba(255,107,53,.7)}
+  .btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border-strong)}
+  .btn-ghost:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+  .btn-lg{padding:15px 28px;font-size:15.5px;border-radius:13px}
+  main{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+  section{padding:96px 0;position:relative}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);margin-bottom:18px}
+  .eyebrow::before{content:"";width:20px;height:2px;background:var(--orange);border-radius:2px}
+  h2{font-size:clamp(30px,4.4vw,46px);font-weight:850;letter-spacing:-.035em;line-height:1.08;margin-bottom:16px}
+  h2 .accent{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:18px;color:var(--text-dim);max-width:680px;line-height:1.6}
+  .center{text-align:center}
+  .center .lede{margin:0 auto}
+  .section-head{margin-bottom:56px}
+  .hero{padding:70px 0 50px;text-align:center}
+  .hero-badge{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--text-dim);background:rgba(255,255,255,.05);border:1px solid var(--border);padding:7px 16px;border-radius:100px;margin-bottom:32px}
+  .hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+  .hero h1{font-size:clamp(46px,8vw,88px);font-weight:900;letter-spacing:-.05em;line-height:.98;margin-bottom:26px}
+  .hero h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:shine 6s linear infinite}
+  @keyframes shine{to{background-position:200% center}}
+  .hero .sub{font-size:clamp(18px,2.4vw,23px);color:var(--text-dim);max-width:680px;margin:0 auto 38px;font-weight:400;letter-spacing:-.01em}
+  .hero .sub b{color:var(--text);font-weight:600}
+  .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+  .hero-trust{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-bottom:64px}
+  .hero-trust .t{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--text-dim);font-weight:500}
+  .hero-trust .t .ic{font-size:14px}
+  .phone-wrap{max-width:330px;margin:0 auto;perspective:1600px}
+  .phone{background:linear-gradient(180deg,#2a2118 0%,#161210 100%);border:1px solid var(--border-strong);border-radius:46px;padding:11px;box-shadow:0 60px 140px -40px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.05),inset 0 0 0 2px rgba(255,255,255,.03);transform:rotateY(-9deg) rotateX(4deg);transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  .phone:hover{transform:rotateY(-4deg) rotateX(2deg)}
+  .screen{background:linear-gradient(180deg,#1b1410 0%,#0e0b09 100%);border-radius:36px;overflow:hidden;position:relative}
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:28px;background:#000;border-radius:16px;z-index:5}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:15px 26px 0;font-size:12.5px;font-weight:600;color:var(--text)}
+  .statusbar .sig{display:flex;gap:5px;align-items:center;font-size:11px}
+  .app-body{padding:30px 18px 14px}
+  .app-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .app-top .greet{font-size:12px;color:var(--text-faint);font-weight:600}
+  .app-top .greet b{display:block;color:var(--text);font-size:15px;margin-top:2px;letter-spacing:-.01em}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--grad-soft);border:1px solid var(--border-strong);display:grid;place-items:center;font-size:15px}
+  .age-card{background:linear-gradient(160deg,rgba(255,107,53,.16),rgba(255,167,48,.04));border:1px solid rgba(255,107,53,.3);border-radius:22px;padding:18px 18px 16px;text-align:center;position:relative;overflow:hidden}
+  .age-card .label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
+  .age-num{font-family:"SF Mono",ui-monospace,monospace;font-size:62px;font-weight:800;line-height:1;margin:6px 0 4px;letter-spacing:-.04em}
+  .age-num .u{font-size:20px;color:var(--text-dim);font-weight:600;margin-left:3px}
+  .age-sub{font-size:12.5px;color:var(--text-dim)}
+  .age-sub b{color:var(--green);font-weight:700}
+  .age-trend{display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:11px;font-weight:700;color:var(--green);background:rgba(52,199,89,.14);padding:4px 10px;border-radius:100px}
+  .mini-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+  .mini{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:15px;padding:13px 14px}
+  .mini .mk{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);display:flex;align-items:center;gap:5px}
+  .mini .mv{font-size:22px;font-weight:800;margin-top:4px;letter-spacing:-.02em}
+  .mini .mv .s{font-size:12px;color:var(--text-dim);font-weight:600}
+  .mini.rec .mv{color:var(--green)}
+  .mini .mt{font-size:11px;color:var(--text-dim);margin-top:1px}
+  .ring{width:30px;height:30px;border-radius:50%;background:conic-gradient(var(--green) 72%,rgba(255,255,255,.1) 0);display:grid;place-items:center;position:absolute;top:12px;right:12px}
+  .ring::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--surface)}
+  .mini.rec{position:relative}
+  .today{margin-top:11px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:15px;padding:13px 14px;display:flex;align-items:center;gap:12px}
+  .today .tw{width:38px;height:38px;border-radius:11px;background:var(--grad-soft);border:1px solid rgba(255,107,53,.3);display:grid;place-items:center;font-size:18px;flex-shrink:0}
+  .today .tt3{font-size:13px;font-weight:700}
+  .today .td{font-size:11px;color:var(--text-dim);margin-top:1px}
+  .coach{margin-top:11px;display:flex;gap:9px;align-items:flex-start}
+  .coach .av{width:26px;height:26px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:13px;flex-shrink:0}
+  .coach .bub{background:rgba(191,90,242,.1);border:1px solid rgba(191,90,242,.25);border-radius:14px 14px 14px 4px;padding:9px 12px;font-size:12px;color:var(--text);line-height:1.5}
+  .coach .bub .s{color:var(--violet);font-weight:700}
+  .tabbar{display:flex;justify-content:space-around;padding:12px 0 8px;margin-top:14px;border-top:1px solid var(--border)}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--text-faint);font-weight:600}
+  .tab.act{color:var(--orange)}
+  .tab .ti{font-size:16px}
+  .grid{display:grid;gap:18px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg-soft) 100%);border:1px solid var(--border);border-radius:20px;padding:30px;transition:.28s;position:relative;overflow:hidden}
+  .card:hover{transform:translateY(-5px);border-color:var(--border-strong);box-shadow:0 26px 60px -24px rgba(0,0,0,.7)}
+  .card .ic{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:23px;margin-bottom:18px}
+  .card h3{font-size:19px;font-weight:750;letter-spacing:-.01em;margin-bottom:9px}
+  .card p{font-size:14.5px;color:var(--text-dim);line-height:1.6}
+  .card .stat{margin-top:14px;display:flex;gap:18px;flex-wrap:wrap}
+  .card .stat .s{font-size:12px;color:var(--text-faint);font-weight:600}
+  .card .stat .s b{color:var(--orange);font-size:15px;display:block;font-weight:800}
+  .age-demo{background:linear-gradient(180deg,var(--surface) 0%,var(--bg-soft) 100%);border:1px solid var(--border-strong);border-radius:24px;padding:44px;max-width:920px;margin:0 auto}
+  .age-demo .cols{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center}
+  .test-list{display:flex;flex-direction:column;gap:8px}
+  .test-list .th{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px}
+  .test-row{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-size:13.5px}
+  .test-row .ck{width:19px;height:19px;border-radius:6px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:11px;flex-shrink:0;font-weight:700}
+  .test-row .nm{font-weight:600}
+  .test-row .dim{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--text-faint);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:6px}
+  .demo-result{background:radial-gradient(circle at 50% 0%,rgba(255,107,53,.18),transparent 60%),rgba(0,0,0,.25);border:1px solid rgba(255,107,53,.3);border-radius:20px;padding:28px 24px;text-align:center}
+  .demo-result .rl{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
+  .demo-result .rn{font-family:"SF Mono",ui-monospace,monospace;font-size:76px;font-weight:800;line-height:1;letter-spacing:-.04em;margin:6px 0}
+  .demo-result .rn .u{font-size:24px;color:var(--text-dim);font-weight:600}
+  .demo-result .rs{font-size:13.5px;color:var(--text-dim)}
+  .demo-result .rs b{color:var(--green);font-weight:700}
+  .demo-result .pct{margin-top:12px;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--green);background:rgba(52,199,89,.14);padding:5px 12px;border-radius:100px}
+  .radar-svg{display:block;margin:14px auto 0;width:100%;max-width:240px;height:auto}
+  .loop{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:18px;align-items:stretch;max-width:1000px;margin:0 auto}
+  .step{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:30px 26px;text-align:center;position:relative;transition:.25s}
+  .step:hover{transform:translateY(-5px);border-color:var(--border-strong)}
+  .step .n{position:absolute;top:16px;right:18px;font-family:"SF Mono",ui-monospace,monospace;font-size:12px;color:var(--text-faint);font-weight:700}
+  .step .si{width:60px;height:60px;border-radius:18px;display:grid;place-items:center;font-size:28px;margin:0 auto 16px;background:var(--grad-soft);border:1px solid rgba(255,107,53,.3)}
+  .step h4{font-size:18px;font-weight:800;margin-bottom:8px;letter-spacing:-.01em}
+  .step p{font-size:13.5px;color:var(--text-dim);line-height:1.6}
+  .step .ex{margin-top:12px;font-family:"SF Mono",ui-monospace,monospace;font-size:12px;color:var(--orange);background:rgba(255,107,53,.1);padding:5px 11px;border-radius:8px;display:inline-block;font-weight:700}
+  .loop-arrow{display:grid;place-items:center;color:var(--orange);font-size:24px;font-weight:300}
+  .loop-banner{max-width:760px;margin:34px auto 0;text-align:center;background:linear-gradient(120deg,rgba(255,107,53,.16),rgba(255,167,48,.06));border:1px solid rgba(255,107,53,.3);border-radius:18px;padding:22px 26px;font-size:18px;font-weight:700}
+  .loop-banner .from{color:var(--text-faint);font-family:"SF Mono",ui-monospace,monospace;text-decoration:line-through;font-size:24px}
+  .loop-banner .arr{color:var(--orange);margin:0 12px}
+  .loop-banner .to{font-family:"SF Mono",ui-monospace,monospace;font-size:34px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .privacy{background:radial-gradient(circle at 20% 0%,rgba(52,199,89,.14),transparent 55%),var(--surface);border:1px solid rgba(52,199,89,.25);border-radius:28px;padding:56px 48px;position:relative;overflow:hidden}
+  .privacy .lock{position:absolute;top:-30px;right:30px;font-size:180px;color:rgba(52,199,89,.05);line-height:1}
+  .privacy h2{max-width:680px}
+  .privacy .plede{font-size:17px;color:var(--text-dim);max-width:640px;margin:18px 0 36px;line-height:1.7}
+  .privacy .plede b{color:#fff}
+  .priv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative}
+  .priv{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:16px;padding:24px}
+  .priv .ic{font-size:24px;margin-bottom:12px}
+  .priv h4{font-size:15px;font-weight:750;margin-bottom:6px}
+  .priv p{font-size:13px;color:var(--text-dim);line-height:1.55}
+  .audit{margin-top:24px;display:inline-flex;align-items:center;gap:10px;font-size:13.5px;color:var(--green);background:rgba(52,199,89,.1);border:1px solid rgba(52,199,89,.3);padding:11px 18px;border-radius:12px;font-weight:600}
+  .cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .cmp-card{border:1px solid var(--border);border-radius:18px;padding:28px;background:var(--surface);text-align:center;transition:.25s}
+  .cmp-card:hover{transform:translateY(-4px);border-color:var(--border-strong)}
+  .cmp-card .nm{font-size:18px;font-weight:750;margin-bottom:4px}
+  .cmp-card .tag{font-size:12px;color:var(--text-faint);margin-bottom:18px}
+  .cmp-card .line{font-size:13.5px;color:var(--text-dim);padding:8px 0;border-top:1px solid var(--border);line-height:1.5}
+  .cmp-card .line:first-of-type{border-top:none}
+  .cmp-card .line b{color:var(--red);font-weight:600}
+  .cmp-vs{display:flex;align-items:center;justify-content:center;gap:14px;margin:26px 0 0;font-size:14px;color:var(--text-dim);font-weight:600;flex-wrap:wrap}
+  .cmp-vs .arrow{color:var(--orange);font-size:18px}
+  .dims{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:10px}
+  .dim{display:flex;align-items:center;gap:9px;padding:12px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:14px}
+  .dim .si{font-size:16px}
+  .challenge{background:radial-gradient(circle at 50% 0%,rgba(255,107,53,.22),transparent 60%),var(--surface);border:1px solid rgba(255,107,53,.3);border-radius:28px;padding:56px 40px;text-align:center}
+  .challenge .chip{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange);background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.3);padding:6px 14px;border-radius:100px;margin-bottom:20px}
+  .challenge h2{margin-bottom:14px}
+  .challenge .cl{font-size:17px;color:var(--text-dim);max-width:560px;margin:0 auto 28px}
+  .challenge .clock{display:flex;justify-content:center;gap:14px;margin:28px 0}
+  .challenge .ck{font-family:"SF Mono",ui-monospace,monospace;font-size:40px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+  .challenge .ckl{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);font-weight:700;margin-top:6px}
+  .faq{max-width:760px;margin:0 auto}
+  .faq-item{border:1px solid var(--border);border-radius:14px;margin-bottom:12px;background:var(--surface);overflow:hidden;transition:.2s}
+  .faq-item summary{padding:20px 24px;font-size:16px;font-weight:650;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item summary::after{content:"+";font-size:22px;color:var(--orange);font-weight:300;transition:.2s}
+  .faq-item[open] summary::after{transform:rotate(45deg)}
+  .faq-item .ans{padding:0 24px 22px;font-size:14.5px;color:var(--text-dim);line-height:1.65}
+  .faq-item .ans b{color:var(--text)}
+  .final{background:radial-gradient(circle at 50% 0%,rgba(255,107,53,.22),transparent 60%),var(--surface);border:1px solid var(--border-strong);border-radius:28px;padding:72px 40px;text-align:center}
+  .final .ic{width:76px;height:76px;border-radius:20px;background:var(--grad);display:grid;place-items:center;margin:0 auto 26px;box-shadow:0 20px 50px -10px rgba(255,107,53,.6);position:relative;overflow:hidden}
+  .final .ic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+  .final h2{margin-bottom:16px}
+  .final .sub{font-size:17px;color:var(--text-dim);max-width:520px;margin:0 auto 34px}
+  .final-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  footer{padding:64px 0 80px;border-top:1px solid var(--border);margin-top:60px}
+  .foot-in{max-width:var(--maxw);margin:0 auto;padding:0 28px;display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;justify-content:space-between}
+  .foot-brand{max-width:320px}
+  .foot-brand .fb{display:flex;align-items:center;gap:11px;font-weight:800;font-size:17px;margin-bottom:12px}
+  .foot-brand p{font-size:13.5px;color:var(--text-dim);line-height:1.6}
+  .foot-cols{display:flex;gap:56px;flex-wrap:wrap}
+  .foot-col h5{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px}
+  .foot-col a{display:block;font-size:14px;color:var(--text-dim);padding:5px 0;transition:.18s}
+  .foot-col a:hover{color:var(--text)}
+  .foot-bottom{max-width:var(--maxw);margin:48px auto 0;padding:24px 28px 0;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:12.5px;color:var(--text-faint)}
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media(max-width:880px){
+    .g3,.cmp,.priv-grid{grid-template-columns:1fr}
+    .nav-links{display:none}
+    .hero-trust{gap:16px}
+    .age-demo{padding:28px 20px}
+    .age-demo .cols{grid-template-columns:1fr;gap:24px}
+    .loop{grid-template-columns:1fr;gap:12px}
+    .loop-arrow{transform:rotate(90deg);height:24px}
+    .privacy,.challenge,.final{padding:36px 22px}
+    .phone{transform:none}
+    .nav-in{gap:10px;padding:13px 18px}
+    .lang-switch button{padding:5px 7px}
+  }
+</style>
+</head>
+<body>
+<div class="ambient"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<svg width="0" height="0" style="position:absolute"><symbol id="apple" viewBox="0 0 384 512"><path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></symbol></svg>
+
+<nav>
+  <div class="nav-in">
+    <a href="#top" class="brand">
+      <span class="logo"><img src="app-icon.png" alt="KinetFit"></span>
+      KinetFit
+    </a>
+    <div class="nav-links">
+      <a href="#age" data-i18n="nav.age">体能年龄</a>
+      <a href="#features" data-i18n="nav.features">功能</a>
+      <a href="#loop" data-i18n="nav.loop">核心循环</a>
+      <a href="#privacy" data-i18n="nav.privacy">隐私</a>
+      <a href="#compare" data-i18n="nav.compare">对比</a>
+      <a href="#faq" data-i18n="nav.faq">FAQ</a>
+    </div>
+    <div class="lang-switch">
+      <button data-lang="zh-Hans" class="active">简</button>
+      <button data-lang="zh-Hant">繁</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="ja">日</button>
+    </div>
+    <a class="btn btn-apple" href="https://apps.apple.com/app/id6773755689">
+      <svg width="15" height="17"><use href="#apple"/></svg>
+      <span data-i18n="cta.appstore">App Store</span>
+    </a>
+  </div>
+</nav>
+
+<main id="top">
+
+<section class="hero">
+  <div class="hero-badge"><span class="dot"></span> <span data-i18n="hero.badge">本地大模型 · 完全离线 · 已上架</span></div>
+  <h1 data-i18n="hero.title">你的身体，<br><span class="grad">到底几岁了</span></h1>
+  <p class="sub" data-i18n="hero.sub">KinetFit 是一款<b>本地优先</b>的长寿健身教练。10 项测试测出你的<b>真实体能年龄</b>，按<b>恢复度</b>智能训练，再测，看数字降下来。比 Keep 懂恢复，比 Apple Fitness 私密，比健身房懂你。</p>
+  <div class="hero-cta">
+    <a class="btn btn-apple btn-lg" href="https://apps.apple.com/app/id6773755689">
+      <svg width="16" height="18"><use href="#apple"/></svg>
+      <span data-i18n="cta.download">下载 KinetFit</span>
+    </a>
+    <a class="btn btn-ghost btn-lg" href="#age" data-i18n="hero.cta2">看体能年龄怎么测 ↓</a>
+  </div>
+  <div class="hero-trust">
+    <span class="t"><span class="ic">🔒</span> <span data-i18n="hero.t1">0 上传</span></span>
+    <span class="t"><span class="ic">🤖</span> <span data-i18n="hero.t2">本地大模型</span></span>
+    <span class="t"><span class="ic">💎</span> <span data-i18n="hero.t3">一次买断 · 无订阅</span></span>
+    <span class="t"><span class="ic">🌐</span> <span data-i18n="hero.t4">4 语言</span></span>
+  </div>
+
+  <div class="phone-wrap reveal">
+    <div class="phone">
+      <div class="screen">
+        <div class="island"></div>
+        <div class="statusbar"><span>9:41</span><span class="sig">●●● 5G ▮</span></div>
+        <div class="app-body">
+          <div class="app-top">
+            <div class="greet"><span data-i18n="mock.hi">早上好，</span>Phinn<b data-i18n="mock.q">今天感觉怎么样？</b></div>
+            <div class="avatar">🏃</div>
+          </div>
+          <div class="age-card">
+            <div class="label" data-i18n="mock.age.label">你的体能年龄</div>
+            <div class="age-num">31<span class="u" data-i18n="unit.years">岁</span></div>
+            <div class="age-sub" data-i18n="mock.age.sub">实际 38 岁 · 体能<b>比同龄人年轻</b></div>
+            <div class="age-trend" data-i18n="mock.age.trend">↓ 较上次更年轻</div>
+          </div>
+          <div class="mini-row">
+            <div class="mini rec">
+              <div class="ring"></div>
+              <div class="mk" data-i18n="mock.rec.label">🔋 恢复度</div>
+              <div class="mv">72<span class="s">/100</span></div>
+              <div class="mt" data-i18n="mock.rec.state">恢复良好，可以训练</div>
+            </div>
+            <div class="mini">
+              <div class="mk" data-i18n="mock.streak.label">🔥 连胜</div>
+              <div class="mv">21<span class="s" data-i18n="unit.days">天</span></div>
+              <div class="mt" data-i18n="mock.streak.state">坚持得不错</div>
+            </div>
+          </div>
+          <div class="today">
+            <div class="tw">🦵</div>
+            <div>
+              <div class="tt3" data-i18n="mock.today.title">下肢恢复训练</div>
+              <div class="td" data-i18n="mock.today.desc">25 分钟 · 按你的恢复度安排</div>
+            </div>
+          </div>
+          <div class="coach">
+            <div class="av">⚡</div>
+            <div class="bub"><span class="s" data-i18n="mock.coach.prefix">教练：</span><span data-i18n="mock.coach.text">你今天恢复不错，建议练下肢力量，强度 7 成就好。</span></div>
+          </div>
+          <div class="tabbar">
+            <div class="tab act"><span class="ti">📊</span><span data-i18n="tab.test">测</span></div>
+            <div class="tab"><span class="ti">🏋️</span><span data-i18n="tab.train">练</span></div>
+            <div class="tab"><span class="ti">👤</span><span data-i18n="tab.me">我</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="age">
+  <div class="center reveal" style="margin-bottom:52px">
+    <div class="eyebrow" style="justify-content:center" data-i18n="age.eyebrow">杀手锏</div>
+    <h2 data-i18n="age.h2">10 项测试，<span class="accent">测出你的真实年龄</span></h2>
+    <p class="lede" style="margin:0 auto" data-i18n="age.lede">不用任何器械，10 项自测动作——从坐立起、单腿站立到 6 分钟步行。<b>10 项 × 6 维度 × 7 个年龄段 × 性别区分，140 个基准值</b>，算出一个谁都能看懂的数字：你的体能年龄。</p>
+  </div>
+  <div class="age-demo reveal">
+    <div class="cols">
+      <div class="test-list">
+        <div class="th" data-i18n="age.list.th">十项体能测试</div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t1">坐立起</span><span class="dim" data-i18n="dimshort.lower">下肢</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t2">单腿站立</span><span class="dim" data-i18n="dimshort.balance">平衡</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t3">俯卧撑</span><span class="dim" data-i18n="dimshort.upper">上肢</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t4">平板支撑</span><span class="dim" data-i18n="dimshort.core">核心</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t5">坐位体前屈</span><span class="dim" data-i18n="dimshort.flex">柔韧</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t6">6 分钟步行</span><span class="dim" data-i18n="dimshort.cardio">心肺</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t7">握力</span><span class="dim" data-i18n="dimshort.upper">上肢</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t8">台阶测试</span><span class="dim" data-i18n="dimshort.cardio">心肺</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t9">深蹲</span><span class="dim" data-i18n="dimshort.lower">下肢</span></div>
+        <div class="test-row"><span class="ck">✓</span><span class="nm" data-i18n="t10">直腿抬高</span><span class="dim" data-i18n="dimshort.flex">柔韧</span></div>
+      </div>
+      <div class="demo-result">
+        <div class="rl" data-i18n="age.result.label">你的体能年龄</div>
+        <div class="rn">31<span class="u" data-i18n="unit.years">岁</span></div>
+        <div class="rs" data-i18n="age.result.sub">实际 38 岁 · 体能<b>更年轻</b></div>
+        <div class="pct" data-i18n="age.result.pct">🏅 同龄人前 22%（P78）</div>
+        <svg class="radar-svg" viewBox="0 0 300 300" aria-hidden="true">
+          <g fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1">
+            <polygon points="150,40 245.3,95 245.3,205 150,260 54.7,205 54.7,95"/>
+            <polygon points="150,77 213.2,113.5 213.2,186.5 150,223 86.8,186.5 86.8,113.5"/>
+            <polygon points="150,113 182,131.5 182,168.5 150,187 118,168.5 118,131.5"/>
+          </g>
+          <g stroke="rgba(255,255,255,.08)" stroke-width="1">
+            <line x1="150" y1="150" x2="150" y2="40"/><line x1="150" y1="150" x2="245.3" y2="95"/>
+            <line x1="150" y1="150" x2="245.3" y2="205"/><line x1="150" y1="150" x2="150" y2="260"/>
+            <line x1="150" y1="150" x2="54.7" y2="205"/><line x1="150" y1="150" x2="54.7" y2="95"/>
+          </g>
+          <polygon points="150,64.2 211.9,114.25 218.6,189.6 150,213.8 72.8,194.55 83.3,111.5" fill="url(#rg)" fill-opacity=".42" stroke="#FF6B35" stroke-width="2"/>
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF6B35"/><stop offset="1" stop-color="#FFD60A"/></linearGradient></defs>
+          <g fill="#FF9F0A"><circle cx="150" cy="64.2" r="3.5"/><circle cx="211.9" cy="114.25" r="3.5"/><circle cx="218.6" cy="189.6" r="3.5"/><circle cx="150" cy="213.8" r="3.5"/><circle cx="72.8" cy="194.55" r="3.5"/><circle cx="83.3" cy="111.5" r="3.5"/></g>
+          <g font-size="11" font-weight="600" fill="#bcb0a4" font-family="-apple-system,sans-serif" text-anchor="middle">
+            <text x="150" y="28" data-i18n="dim.lower">下肢力量</text>
+            <text x="262" y="93" data-i18n="dim.upper">上肢力量</text>
+            <text x="262" y="214" data-i18n="dim.core">核心</text>
+            <text x="150" y="278" data-i18n="dim.flex">柔韧</text>
+            <text x="38" y="214" data-i18n="dim.balance">平衡</text>
+            <text x="38" y="93" data-i18n="dim.cardio">心肺</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="center reveal section-head">
+    <div class="eyebrow" style="justify-content:center" data-i18n="feat.eyebrow">功能</div>
+    <h2 data-i18n="feat.h2">聪明、私密、<span class="accent">真懂身体</span></h2>
+    <p class="lede" style="margin:0 auto" data-i18n="feat.lede">该有的都有——体能年龄、恢复训练、本地大模型教练；不该有的（云端、追踪、订阅）一个没有。</p>
+  </div>
+  <div class="grid g3 reveal">
+    <div class="card">
+      <div class="ic" style="background:rgba(255,107,53,.16);color:var(--orange)">🎯</div>
+      <h3 data-i18n="f1.h3">体能年龄算法</h3>
+      <p data-i18n="f1.p">10 项测试、6 维度、7 个年龄段、性别区分，140 个基准值。市面唯一可量化的「身体年龄」，别人没有，抄不走。</p>
+      <div class="stat"><span class="s"><b>10</b><span data-i18n="f1.s1">项测试</span></span><span class="s"><b>6</b><span data-i18n="f1.s2">维度</span></span><span class="s"><b>140</b><span data-i18n="f1.s3">基准值</span></span></div>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:rgba(52,199,89,.16);color:var(--green)">🔋</div>
+      <h3 data-i18n="f2.h3">恢复驱动训练</h3>
+      <p data-i18n="f2.p">没恢复就不练。读取睡眠、心率、主观疲劳算出恢复分，告诉你是该上重量，还是该拉伸休息。真洞见，不是噱头。</p>
+      <div class="stat"><span class="s" data-i18n="f2.s1">恢复 ≥ 40</span><span class="s" data-i18n="f2.s2">→ 上强度</span><span class="s" data-i18n="f2.s3">否则 → 主动恢复</span></div>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:rgba(191,90,242,.16);color:var(--violet)">🤖</div>
+      <h3 data-i18n="f3.h3">本地大模型 AI 教练</h3>
+      <p data-i18n="f3.p">一个做到极致。设备上跑 Qwen 系列本地模型（llama.cpp），无需联网、无需 API key，对话不离设备。要更强？自带 key 接远程模型。</p>
+      <div class="stat"><span class="s"><b>llama.cpp</b><span data-i18n="f3.s1">本地推理</span></span><span class="s" data-i18n="f3.s2">全程离线</span></div>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:rgba(90,200,250,.16);color:var(--blue)">❤️</div>
+      <h3 data-i18n="f4.h3">HealthKit 恢复度</h3>
+      <p data-i18n="f4.p">接入睡眠、心率、步数，自动算恢复度。不用每天手动填表，数据自己说话。</p>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:rgba(255,214,10,.16);color:var(--gold)">📈</div>
+      <h3 data-i18n="f5.h3">趋势 + 分享卡</h3>
+      <p data-i18n="f5.p">体能年龄趋势、恢复曲线一目了然。测完一键生成分享卡，「我身体 31 岁」比「减了 5kg」更抓眼球。</p>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:rgba(255,69,58,.16);color:var(--red)">🔥</div>
+      <h3 data-i18n="f6.h3">连胜不孤单</h3>
+      <p data-i18n="f6.p">坚持打卡有纪念，连胜断了 AI 教练第一时间拉你回来。养成习惯，靠的是反馈，不是意志力。</p>
+    </div>
+  </div>
+</section>
+
+<section id="loop">
+  <div class="center reveal section-head">
+    <div class="eyebrow" style="justify-content:center" data-i18n="loop.eyebrow">核心循环</div>
+    <h2 data-i18n="loop.h2">测，练，再测，<span class="accent">看你的数字动</span></h2>
+    <p class="lede" style="margin:0 auto" data-i18n="loop.lede">不是又一次打卡，是一个让你真正变年轻的闭环。体能年龄算法 + 恢复模型绑定，别人抄不走。</p>
+  </div>
+  <div class="loop reveal">
+    <div class="step">
+      <span class="n">01</span><div class="si">🎯</div>
+      <h4 data-i18n="step1.h">测</h4>
+      <p data-i18n="step1.p">完成 10 项体能测试，得到你的体能年龄基线。</p>
+      <span class="ex" data-i18n="step1.ex">基线 38 岁</span>
+    </div>
+    <div class="loop-arrow">→</div>
+    <div class="step">
+      <span class="n">02</span><div class="si">🏋️</div>
+      <h4 data-i18n="step2.h">练</h4>
+      <p data-i18n="step2.p">按当天的恢复度，AI 教练给你定制训练计划。</p>
+      <span class="ex" data-i18n="step2.ex">21 天恢复训练</span>
+    </div>
+    <div class="loop-arrow">→</div>
+    <div class="step">
+      <span class="n">03</span><div class="si">🔁</div>
+      <h4 data-i18n="step3.h">再测</h4>
+      <p data-i18n="step3.p">重新测试，数字会说话——看你变得更年轻。</p>
+      <span class="ex" data-i18n="step3.ex">数字往下走</span>
+    </div>
+  </div>
+  <div class="loop-banner reveal">
+    <span class="from">38 岁</span><span class="arr">→</span><span class="to">?</span>
+    <span style="display:block;margin-top:8px;color:var(--text-dim);font-size:14px;font-weight:500" data-i18n="loop.banner.sub">21 天，看你的数字往哪走。这才是健身该有的反馈。</span>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="privacy reveal">
+    <div class="lock">🔒</div>
+    <div class="eyebrow" style="color:var(--green)" data-i18n="priv.eyebrow">隐私，是承诺也是工程</div>
+    <h2 data-i18n="priv.h2">你的身体数据，<span class="accent">只在你口袋里</span></h2>
+    <p class="plede" data-i18n="priv.plede">KinetFit <b>没有服务器</b>。你的体能测试、训练记录、身体数据存在<b>本地 SQLite</b>，0 上传；AI 教练默认跑<b>本地大模型</b>，对话不离设备。想用更强的远程模型？自带 API key，对话端到端直连你选的模型商，我们不中转、不存储。</p>
+    <div class="priv-grid">
+      <div class="priv"><div class="ic">🚫</div><h4 data-i18n="p1.h4">无分析 SDK</h4><p data-i18n="p1.p">不接任何 analytics、不埋点、不上报使用数据。</p></div>
+      <div class="priv"><div class="ic">📦</div><h4 data-i18n="p2.h4">本地 SQLite</h4><p data-i18n="p2.p">所有测试、训练、趋势都在你设备的本地数据库 + WAL 日志里。</p></div>
+      <div class="priv"><div class="ic">🤖</div><h4 data-i18n="p3.h4">本地大模型 · 默认离线</h4><p data-i18n="p3.p">AI 教练在你设备上跑 Qwen 本地模型（llama.cpp），无需联网，对话不出设备。</p></div>
+    </div>
+    <div class="audit" data-i18n="priv.audit">🔍 完全离线：本地大模型 + 健身数据，飞行模式下 AI 教练照常工作</div>
+  </div>
+</section>
+
+<section id="compare">
+  <div class="center reveal section-head">
+    <div class="eyebrow" style="justify-content:center" data-i18n="cmp.eyebrow">为什么是 KinetFit</div>
+    <h2 data-i18n="cmp.h2">懂恢复，<span class="accent">又私密</span></h2>
+    <p class="lede" style="margin:0 auto" data-i18n="cmp.lede">其他 app 各占一格——Keep 内容多但要云要订阅，Apple Fitness 原生但封闭，Nike 只有课程库。KinetFit 占那个空白的交集：体能年龄 + 恢复训练 + 本地大模型 + 完全离线。</p>
+  </div>
+  <div class="cmp reveal">
+    <div class="cmp-card">
+      <div class="nm" data-i18n="c1.nm">📱 Keep / FitTime</div>
+      <div class="tag" data-i18n="c1.tag">订阅 · 云端</div>
+      <div class="line" data-i18n="c1.l1">✓ 课程内容多</div>
+      <div class="line" data-i18n="c1.l2"><b>✕ 不懂你的恢复度</b></div>
+      <div class="line" data-i18n="c1.l3"><b>✕ 没有体能年龄</b></div>
+      <div class="line" data-i18n="c1.l4"><b>✕ 数据上云 + 订阅制</b></div>
+    </div>
+    <div class="cmp-card">
+      <div class="nm" data-i18n="c2.nm">🍎 Apple Fitness</div>
+      <div class="tag" data-i18n="c2.tag">订阅 · 系统</div>
+      <div class="line" data-i18n="c2.l1">✓ 与健康 App 深度集成</div>
+      <div class="line" data-i18n="c2.l2"><b>✕ 封闭，无体能年龄</b></div>
+      <div class="line" data-i18n="c2.l3"><b>✕ 无个性化恢复训练</b></div>
+      <div class="line" data-i18n="c2.l4"><b>✕ 需按月订阅</b></div>
+    </div>
+    <div class="cmp-card" style="border-color:var(--orange);background:linear-gradient(180deg,rgba(255,107,53,.1),var(--surface))">
+      <div class="nm" style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent" data-i18n="c3.nm">⚡ KinetFit</div>
+      <div class="tag" data-i18n="c3.tag">买断 · 本地优先</div>
+      <div class="line" data-i18n="c3.l1">✓ 体能年龄算法（独家）</div>
+      <div class="line" data-i18n="c3.l2">✓ 恢复驱动训练</div>
+      <div class="line" data-i18n="c3.l3">✓ 本地大模型 · 0 上传</div>
+      <div class="line" data-i18n="c3.l4">✓ 一次买断，无订阅</div>
+    </div>
+  </div>
+  <div class="cmp-vs reveal"><span data-i18n="vs1">比 Keep 懂恢复</span><span class="arrow">·</span><span data-i18n="vs2">比 Apple Fitness 私密</span><span class="arrow">·</span><span data-i18n="vs3">比健身房懂你</span></div>
+</section>
+
+<section id="design">
+  <div class="center reveal section-head">
+    <div class="eyebrow" style="justify-content:center" data-i18n="dims.eyebrow">六维 · 十项</div>
+    <h2 data-i18n="dims.h2">六个维度，<span class="accent">看懂你的身体</span></h2>
+    <p class="lede" style="margin:0 auto" data-i18n="dims.lede">不做花里胡哨。10 项自重测试，归到 6 个维度，雷达图一眼看出你哪里强、哪里要补。</p>
+  </div>
+  <div class="dims reveal">
+    <span class="dim"><span class="si">🦵</span> <span data-i18n="dim.lower">下肢力量</span></span>
+    <span class="dim"><span class="si">💪</span> <span data-i18n="dim.upper">上肢力量</span></span>
+    <span class="dim"><span class="si">🧱</span> <span data-i18n="dim.core">核心</span></span>
+    <span class="dim"><span class="si">🤸</span> <span data-i18n="dim.flex">柔韧</span></span>
+    <span class="dim"><span class="si">⚖️</span> <span data-i18n="dim.balance">平衡</span></span>
+    <span class="dim"><span class="si">❤️‍🔥</span> <span data-i18n="dim.cardio">心肺</span></span>
+  </div>
+</section>
+
+<section id="challenge">
+  <div class="challenge reveal">
+    <div class="chip" data-i18n="chal.chip">🏁 App Store 内活动</div>
+    <h2 data-i18n="chal.h2">21 天体能年龄<span class="accent">挑战</span></h2>
+    <p class="cl" data-i18n="chal.lede">测一次体能年龄，跟 AI 教练练 21 天，重新测试——看你的数字怎么变。天然的「前后对比」，从今天开始。</p>
+    <div class="clock">
+      <div><span class="ck">21</span><span class="ckl" data-i18n="chal.k1">天挑战</span></div>
+      <div><span class="ck">10</span><span class="ckl" data-i18n="chal.k2">项测试</span></div>
+      <div><span class="ck">↓</span><span class="ckl" data-i18n="chal.k3">更年轻</span></div>
+    </div>
+    <div class="final-cta">
+      <a class="btn btn-grad btn-lg" href="https://apps.apple.com/app/id6773755689"><span data-i18n="chal.cta">加入挑战 · 立即下载</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="center reveal section-head">
+    <div class="eyebrow" style="justify-content:center" data-i18n="faq.eyebrow">常见问题</div>
+    <h2 data-i18n="faq.h2">你大概<span class="accent">想问的</span></h2>
+  </div>
+  <div class="faq reveal">
+    <details class="faq-item" open>
+      <summary data-i18n="q1">体能年龄是怎么算出来的？准吗？</summary>
+      <div class="ans" data-i18n="a1">基于 <b>10 项体能测试 × 6 个维度 × 7 个年龄段 × 性别区分</b>，对照 140 个基准值算出。每一项测试都有该年龄段、性别的百分位参考（比如 30 秒坐立起次数、单腿站立秒数）。它不是「体感」，是<b>可量化的相对位置</b>——你比同龄人强还是弱，一目了然。</div>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="q2">不去健身房、没有器械能测吗？</summary>
+      <div class="ans" data-i18n="a2">能。10 项全是<b>自重自测</b>：坐立起、单腿站立、俯卧撑、平板支撑、坐位体前屈、6 分钟步行、握力、台阶测试、深蹲、直腿抬高。一块平地、一部手机、一个计时器，在家就能做完。</div>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="q3">「恢复驱动训练」到底什么意思？</summary>
+      <div class="ans" data-i18n="a3">大多数 app 只管让你「练」，不管你「恢复没」。KinetFit 读取睡眠、心率、主观疲劳算出<b>恢复分</b>：恢复好就上强度，没恢复就主动拉伸休息。<b>没恢复就不练</b>——因为进步发生在恢复里，不在训练里。</div>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="q4">AI 教练要联网吗？数据会上传吗？</summary>
+      <div class="ans" data-i18n="a4">默认<b>不用</b>。AI 教练跑在你设备上的<b>本地大模型（Qwen / llama.cpp）</b>，无需联网、无需 API key，对话不离设备，飞行模式也照常。想要更强模型，也能<b>自带 API key</b>接 DeepSeek、Claude 等——那条对话直连你选的模型商，我们不中转、不存储。无论哪种，你的<b>健身数据始终本地，0 上传</b>。</div>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="q5">本地大模型要下载吗？占多大空间？</summary>
+      <div class="ans" data-i18n="a5">首次使用本地大模型需一次性下载（推荐 Qwen2.5 3B，约 2GB），之后<b>永久离线运行</b>，不再消耗流量。不想下载？用自带 key 的远程模型即可，功能一样。</div>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="q6">是免费的吗？要订阅吗？</summary>
+      <div class="ans" data-i18n="a6"><b>一次买断（$4.99），永久使用，绝无订阅。</b>体能年龄测试、恢复训练、AI 教练一次解锁，没有月费、没有自动续费、没有功能墙。</div>
+    </details>
+    <details class="faq-item">
+      <summary data-i18n="q7">支持哪些设备和语言？</summary>
+      <div class="ans" data-i18n="a7">iPhone（iOS 16+）和 Apple Watch。支持<b>简体中文、繁体中文、英文、日文</b>四种语言，AI 教练用你的母语对话。</div>
+    </details>
+  </div>
+</section>
+
+<section>
+  <div class="final reveal">
+    <div class="ic"><img src="app-icon.png" alt="KinetFit"></div>
+    <h2 data-i18n="final.h2">测一次，<span class="accent">看看你到底几岁</span></h2>
+    <p class="sub" data-i18n="final.sub">体能年龄 + 恢复训练 + 本地大模型。完全离线，一次买断。</p>
+    <div class="final-cta">
+      <a class="btn btn-apple btn-lg" href="https://apps.apple.com/app/id6773755689">
+        <svg width="16" height="18"><use href="#apple"/></svg>
+        <span data-i18n="cta.download">下载 KinetFit</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="foot-in">
+    <div class="foot-brand">
+      <div class="fb"><span class="logo"><img src="app-icon.png" alt=""></span> KinetFit</div>
+      <p data-i18n="foot.slogan">你的身体几岁了？测一下，按恢复度练，再测，看数字降下来。比 Keep 懂恢复，比 Apple Fitness 私密，比健身房懂你。</p>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col">
+        <h5 data-i18n="foot.h.product">产品</h5>
+        <a href="#age" data-i18n="nav.age">体能年龄</a>
+        <a href="#features" data-i18n="nav.features">功能</a>
+        <a href="#loop" data-i18n="nav.loop">核心循环</a>
+        <a href="#design" data-i18n="dims.eyebrow">六维十项</a>
+      </div>
+      <div class="foot-col">
+        <h5 data-i18n="foot.h.about">关于</h5>
+        <a href="#privacy" data-i18n="foot.privacy">隐私承诺</a>
+        <a href="#compare" data-i18n="foot.compare">竞品对比</a>
+        <a href="#challenge" data-i18n="foot.challenge">21 天挑战</a>
+        <a href="#faq" data-i18n="nav.faq">常见问题</a>
+      </div>
+      <div class="foot-col">
+        <h5 data-i18n="foot.h.get">获取</h5>
+        <a href="https://apps.apple.com/app/id6773755689" data-i18n="foot.appstore">App Store 下载</a>
+        <a href="mailto:phinn@outlook.com" data-i18n="foot.contact">联系开发者</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span data-i18n="foot.copy1">© 2026 KinetFit · Built with SwiftUI + 本地大模型（llama.cpp）</span>
+    <span data-i18n="foot.copy2">com.kinet.fitflow.app · 一次买断，绝无订阅</span>
+  </div>
+</footer>
+
+<script>
+/* 4 语言字典：所有 value 用反引号包裹（内部双引号/中文引号均安全）*/
+const I18N = {
+"zh-Hans":{
+"nav.age":`体能年龄`,"nav.features":`功能`,"nav.loop":`核心循环`,"nav.privacy":`隐私`,"nav.compare":`对比`,"nav.faq":`FAQ`,
+"cta.appstore":`App Store`,"cta.download":`下载 KinetFit`,
+"hero.badge":`本地大模型 · 完全离线 · 已上架`,
+"hero.title":`你的身体，<br><span class="grad">到底几岁了</span>`,
+"hero.sub":`KinetFit 是一款<b>本地优先</b>的长寿健身教练。10 项测试测出你的<b>真实体能年龄</b>，按<b>恢复度</b>智能训练，再测，看数字降下来。比 Keep 懂恢复，比 Apple Fitness 私密，比健身房懂你。`,
+"hero.cta2":`看体能年龄怎么测 ↓`,
+"hero.t1":`0 上传`,"hero.t2":`本地大模型`,"hero.t3":`一次买断 · 无订阅`,"hero.t4":`4 语言`,
+"unit.years":`岁`,"unit.days":`天`,
+"mock.hi":`早上好，`,"mock.q":`今天感觉怎么样？`,"mock.age.label":`你的体能年龄`,
+"mock.age.sub":`实际 38 岁 · 体能<b>比同龄人年轻</b>`,"mock.age.trend":`↓ 较上次更年轻`,
+"mock.rec.label":`🔋 恢复度`,"mock.rec.state":`恢复良好，可以训练`,
+"mock.streak.label":`🔥 连胜`,"mock.streak.state":`坚持得不错`,
+"mock.today.title":`下肢恢复训练`,"mock.today.desc":`25 分钟 · 按你的恢复度安排`,
+"mock.coach.prefix":`教练：`,"mock.coach.text":`你今天恢复不错，建议练下肢力量，强度 7 成就好。`,
+"tab.test":`测`,"tab.train":`练`,"tab.me":`我`,
+"age.eyebrow":`杀手锏`,"age.h2":`10 项测试，<span class="accent">测出你的真实年龄</span>`,
+"age.lede":`不用任何器械，10 项自测动作——从坐立起、单腿站立到 6 分钟步行。<b>10 项 × 6 维度 × 7 个年龄段 × 性别区分，140 个基准值</b>，算出一个谁都能看懂的数字：你的体能年龄。`,
+"age.list.th":`十项体能测试`,"age.result.label":`你的体能年龄`,"age.result.sub":`实际 38 岁 · 体能<b>更年轻</b>`,"age.result.pct":`🏅 同龄人前 22%（P78）`,
+"t1":`坐立起`,"t2":`单腿站立`,"t3":`俯卧撑`,"t4":`平板支撑`,"t5":`坐位体前屈`,"t6":`6 分钟步行`,"t7":`握力`,"t8":`台阶测试`,"t9":`深蹲`,"t10":`直腿抬高`,
+"dimshort.lower":`下肢`,"dimshort.upper":`上肢`,"dimshort.core":`核心`,"dimshort.flex":`柔韧`,"dimshort.balance":`平衡`,"dimshort.cardio":`心肺`,
+"dim.lower":`下肢力量`,"dim.upper":`上肢力量`,"dim.core":`核心`,"dim.flex":`柔韧`,"dim.balance":`平衡`,"dim.cardio":`心肺`,
+"feat.eyebrow":`功能`,"feat.h2":`聪明、私密、<span class="accent">真懂身体</span>`,"feat.lede":`该有的都有——体能年龄、恢复训练、本地大模型教练；不该有的（云端、追踪、订阅）一个没有。`,
+"f1.h3":`体能年龄算法`,"f1.p":`10 项测试、6 维度、7 个年龄段、性别区分，140 个基准值。市面唯一可量化的「身体年龄」，别人没有，抄不走。`,"f1.s1":`项测试`,"f1.s2":`维度`,"f1.s3":`基准值`,
+"f2.h3":`恢复驱动训练`,"f2.p":`没恢复就不练。读取睡眠、心率、主观疲劳算出恢复分，告诉你是该上重量，还是该拉伸休息。真洞见，不是噱头。`,"f2.s1":`恢复 ≥ 40`,"f2.s2":`→ 上强度`,"f2.s3":`否则 → 主动恢复`,
+"f3.h3":`本地大模型 AI 教练`,"f3.p":`一个做到极致。设备上跑 Qwen 系列本地模型（llama.cpp），无需联网、无需 API key，对话不离设备。要更强？自带 key 接远程模型。`,"f3.s1":`本地推理`,"f3.s2":`全程离线`,
+"f4.h3":`HealthKit 恢复度`,"f4.p":`接入睡眠、心率、步数，自动算恢复度。不用每天手动填表，数据自己说话。`,
+"f5.h3":`趋势 + 分享卡`,"f5.p":`体能年龄趋势、恢复曲线一目了然。测完一键生成分享卡，「我身体 31 岁」比「减了 5kg」更抓眼球。`,
+"f6.h3":`连胜不孤单`,"f6.p":`坚持打卡有纪念，连胜断了 AI 教练第一时间拉你回来。养成习惯，靠的是反馈，不是意志力。`,
+"loop.eyebrow":`核心循环`,"loop.h2":`测，练，再测，<span class="accent">看你的数字动</span>`,"loop.lede":`不是又一次打卡，是一个让你真正变年轻的闭环。体能年龄算法 + 恢复模型绑定，别人抄不走。`,
+"step1.h":`测`,"step1.p":`完成 10 项体能测试，得到你的体能年龄基线。`,"step1.ex":`基线 38 岁`,
+"step2.h":`练`,"step2.p":`按当天的恢复度，AI 教练给你定制训练计划。`,"step2.ex":`21 天恢复训练`,
+"step3.h":`再测`,"step3.p":`重新测试，数字会说话——看你变得更年轻。`,"step3.ex":`数字往下走`,
+"loop.banner.sub":`21 天，看你的数字往哪走。这才是健身该有的反馈。`,
+"priv.eyebrow":`隐私，是承诺也是工程`,"priv.h2":`你的身体数据，<span class="accent">只在你口袋里</span>`,
+"priv.plede":`KinetFit <b>没有服务器</b>。你的体能测试、训练记录、身体数据存在<b>本地 SQLite</b>，0 上传；AI 教练默认跑<b>本地大模型</b>，对话不离设备。想用更强的远程模型？自带 API key，对话端到端直连你选的模型商，我们不中转、不存储。`,
+"p1.h4":`无分析 SDK`,"p1.p":`不接任何 analytics、不埋点、不上报使用数据。`,
+"p2.h4":`本地 SQLite`,"p2.p":`所有测试、训练、趋势都在你设备的本地数据库 + WAL 日志里。`,
+"p3.h4":`本地大模型 · 默认离线`,"p3.p":`AI 教练在你设备上跑 Qwen 本地模型（llama.cpp），无需联网，对话不出设备。`,
+"priv.audit":`🔍 完全离线：本地大模型 + 健身数据，飞行模式下 AI 教练照常工作`,
+"cmp.eyebrow":`为什么是 KinetFit`,"cmp.h2":`懂恢复，<span class="accent">又私密</span>`,
+"cmp.lede":`其他 app 各占一格——Keep 内容多但要云要订阅，Apple Fitness 原生但封闭，Nike 只有课程库。KinetFit 占那个空白的交集：体能年龄 + 恢复训练 + 本地大模型 + 完全离线。`,
+"c1.nm":`📱 Keep / FitTime`,"c1.tag":`订阅 · 云端`,"c1.l1":`✓ 课程内容多`,"c1.l2":`<b>✕ 不懂你的恢复度</b>`,"c1.l3":`<b>✕ 没有体能年龄</b>`,"c1.l4":`<b>✕ 数据上云 + 订阅制</b>`,
+"c2.nm":`🍎 Apple Fitness`,"c2.tag":`订阅 · 系统`,"c2.l1":`✓ 与健康 App 深度集成`,"c2.l2":`<b>✕ 封闭，无体能年龄</b>`,"c2.l3":`<b>✕ 无个性化恢复训练</b>`,"c2.l4":`<b>✕ 需按月订阅</b>`,
+"c3.nm":`⚡ KinetFit`,"c3.tag":`买断 · 本地优先`,"c3.l1":`✓ 体能年龄算法（独家）`,"c3.l2":`✓ 恢复驱动训练`,"c3.l3":`✓ 本地大模型 · 0 上传`,"c3.l4":`✓ 一次买断，无订阅`,
+"vs1":`比 Keep 懂恢复`,"vs2":`比 Apple Fitness 私密`,"vs3":`比健身房懂你`,
+"dims.eyebrow":`六维 · 十项`,"dims.h2":`六个维度，<span class="accent">看懂你的身体</span>`,"dims.lede":`不做花里胡哨。10 项自重测试，归到 6 个维度，雷达图一眼看出你哪里强、哪里要补。`,
+"chal.chip":`🏁 App Store 内活动`,"chal.h2":`21 天体能年龄<span class="accent">挑战</span>`,"chal.lede":`测一次体能年龄，跟 AI 教练练 21 天，重新测试——看你的数字怎么变。天然的「前后对比」，从今天开始。`,"chal.k1":`天挑战`,"chal.k2":`项测试`,"chal.k3":`更年轻`,"chal.cta":`加入挑战 · 立即下载`,
+"faq.eyebrow":`常见问题`,"faq.h2":`你大概<span class="accent">想问的</span>`,
+"q1":`体能年龄是怎么算出来的？准吗？`,"a1":`基于 <b>10 项体能测试 × 6 个维度 × 7 个年龄段 × 性别区分</b>，对照 140 个基准值算出。每一项测试都有该年龄段、性别的百分位参考（比如 30 秒坐立起次数、单腿站立秒数）。它不是「体感」，是<b>可量化的相对位置</b>——你比同龄人强还是弱，一目了然。`,
+"q2":`不去健身房、没有器械能测吗？`,"a2":`能。10 项全是<b>自重自测</b>：坐立起、单腿站立、俯卧撑、平板支撑、坐位体前屈、6 分钟步行、握力、台阶测试、深蹲、直腿抬高。一块平地、一部手机、一个计时器，在家就能做完。`,
+"q3":`「恢复驱动训练」到底什么意思？`,"a3":`大多数 app 只管让你「练」，不管你「恢复没」。KinetFit 读取睡眠、心率、主观疲劳算出<b>恢复分</b>：恢复好就上强度，没恢复就主动拉伸休息。<b>没恢复就不练</b>——因为进步发生在恢复里，不在训练里。`,
+"q4":`AI 教练要联网吗？数据会上传吗？`,"a4":`默认<b>不用</b>。AI 教练跑在你设备上的<b>本地大模型（Qwen / llama.cpp）</b>，无需联网、无需 API key，对话不离设备，飞行模式也照常。想要更强模型，也能<b>自带 API key</b>接 DeepSeek、Claude 等——那条对话直连你选的模型商，我们不中转、不存储。无论哪种，你的<b>健身数据始终本地，0 上传</b>。`,
+"q5":`本地大模型要下载吗？占多大空间？`,"a5":`首次使用本地大模型需一次性下载（推荐 Qwen2.5 3B，约 2GB），之后<b>永久离线运行</b>，不再消耗流量。不想下载？用自带 key 的远程模型即可，功能一样。`,
+"q6":`是免费的吗？要订阅吗？`,"a6":`<b>一次买断（$4.99），永久使用，绝无订阅。</b>体能年龄测试、恢复训练、AI 教练一次解锁，没有月费、没有自动续费、没有功能墙。`,
+"q7":`支持哪些设备和语言？`,"a7":`iPhone（iOS 16+）和 Apple Watch。支持<b>简体中文、繁体中文、英文、日文</b>四种语言，AI 教练用你的母语对话。`,
+"final.h2":`测一次，<span class="accent">看看你到底几岁</span>`,"final.sub":`体能年龄 + 恢复训练 + 本地大模型。完全离线，一次买断。`,
+"foot.slogan":`你的身体几岁了？测一下，按恢复度练，再测，看数字降下来。比 Keep 懂恢复，比 Apple Fitness 私密，比健身房懂你。`,
+"foot.h.product":`产品`,"foot.h.about":`关于`,"foot.h.get":`获取`,"foot.privacy":`隐私承诺`,"foot.compare":`竞品对比`,"foot.challenge":`21 天挑战`,"foot.appstore":`App Store 下载`,"foot.contact":`联系开发者`,
+"foot.copy1":`© 2026 KinetFit · Built with SwiftUI + 本地大模型（llama.cpp）`,"foot.copy2":`com.kinet.fitflow.app · 一次买断，绝无订阅`,
+"meta.title":`KinetFit — 你的身体几岁了 · 体能年龄 · 本地大模型 · 完全离线`,
+"meta.desc":`KinetFit 是一款本地优先的长寿健身教练。10 项测试测出你的真实体能年龄，按恢复度智能训练，再测看数字降下来。本地大模型、完全离线、0 上传、一次买断。`
+},
+
+"zh-Hant":{
+"nav.age":`體能年齡`,"nav.features":`功能`,"nav.loop":`核心循環`,"nav.privacy":`隱私`,"nav.compare":`對比`,"nav.faq":`FAQ`,
+"cta.appstore":`App Store`,"cta.download":`下載 KinetFit`,
+"hero.badge":`本地大模型 · 完全離線 · 已上架`,
+"hero.title":`你的身體，<br><span class="grad">到底幾歲了</span>`,
+"hero.sub":`KinetFit 是一款<b>本地優先</b>的長壽健身教練。10 項測試測出你的<b>真實體能年齡</b>，按<b>恢復度</b>智能訓練，再測，看數字降下來。比 Keep 懂恢復，比 Apple Fitness 私密，比健身房懂你。`,
+"hero.cta2":`看體能年齡怎麼測 ↓`,
+"hero.t1":`0 上傳`,"hero.t2":`本地大模型`,"hero.t3":`一次買斷 · 無訂閱`,"hero.t4":`4 語言`,
+"unit.years":`歲`,"unit.days":`天`,
+"mock.hi":`早安，`,"mock.q":`今天感覺怎麼樣？`,"mock.age.label":`你的體能年齡`,
+"mock.age.sub":`實際 38 歲 · 體能<b>比同齡人年輕</b>`,"mock.age.trend":`↓ 較上次更年輕`,
+"mock.rec.label":`🔋 恢復度`,"mock.rec.state":`恢復良好，可以訓練`,
+"mock.streak.label":`🔥 連勝`,"mock.streak.state":`堅持得不錯`,
+"mock.today.title":`下肢恢復訓練`,"mock.today.desc":`25 分鐘 · 按你的恢復度安排`,
+"mock.coach.prefix":`教練：`,"mock.coach.text":`你今天恢復不錯，建議練下肢力量，強度 7 成就好。`,
+"tab.test":`測`,"tab.train":`練`,"tab.me":`我`,
+"age.eyebrow":`殺手鐧`,"age.h2":`10 項測試，<span class="accent">測出你的真實年齡</span>`,
+"age.lede":`不用任何器械，10 項自測動作——從坐立起、單腿站立到 6 分鐘步行。<b>10 項 × 6 維度 × 7 個年齡段 × 性別區分，140 個基準值</b>，算出一個誰都能看懂的數字：你的體能年齡。`,
+"age.list.th":`十項體能測試`,"age.result.label":`你的體能年齡`,"age.result.sub":`實際 38 歲 · 體能<b>更年輕</b>`,"age.result.pct":`🏅 同齡人前 22%（P78）`,
+"t1":`坐立起`,"t2":`單腿站立`,"t3":`俯臥撐`,"t4":`平板支撐`,"t5":`坐位體前屈`,"t6":`6 分鐘步行`,"t7":`握力`,"t8":`台階測試`,"t9":`深蹲`,"t10":`直腿抬高`,
+"dimshort.lower":`下肢`,"dimshort.upper":`上肢`,"dimshort.core":`核心`,"dimshort.flex":`柔軟`,"dimshort.balance":`平衡`,"dimshort.cardio":`心肺`,
+"dim.lower":`下肢力量`,"dim.upper":`上肢力量`,"dim.core":`核心`,"dim.flex":`柔軟度`,"dim.balance":`平衡`,"dim.cardio":`心肺`,
+"feat.eyebrow":`功能`,"feat.h2":`聰明、私密、<span class="accent">真懂身體</span>`,"feat.lede":`該有的都有——體能年齡、恢復訓練、本地大模型教練；不該有的（雲端、追蹤、訂閱）一個沒有。`,
+"f1.h3":`體能年齡演算法`,"f1.p":`10 項測試、6 維度、7 個年齡段、性別區分，140 個基準值。市面唯一可量化的「身體年齡」，別人沒有，抄不走。`,"f1.s1":`項測試`,"f1.s2":`維度`,"f1.s3":`基準值`,
+"f2.h3":`恢復驅動訓練`,"f2.p":`沒恢復就不練。讀取睡眠、心率、主觀疲勞算出恢復分，告訴你是該上重量，還是該拉伸休息。真洞見，不是噱頭。`,"f2.s1":`恢復 ≥ 40`,"f2.s2":`→ 上強度`,"f2.s3":`否則 → 主動恢復`,
+"f3.h3":`本地大模型 AI 教練`,"f3.p":`一個做到極致。裝置上跑 Qwen 系列本地模型（llama.cpp），無需聯網、無需 API key，對話不離裝置。要更強？自帶 key 接遠端模型。`,"f3.s1":`本地推理`,"f3.s2":`全程離線`,
+"f4.h3":`HealthKit 恢復度`,"f4.p":`接入睡眠、心率、步數，自動算恢復度。不用每天手動填表，數據自己說話。`,
+"f5.h3":`趨勢 + 分享卡`,"f5.p":`體能年齡趨勢、恢復曲線一目了然。測完一鍵生成分享卡，「我身體 31 歲」比「減了 5kg」更抓眼球。`,
+"f6.h3":`連勝不孤單`,"f6.p":`堅持打卡有紀念，連勝斷了 AI 教練第一時間拉你回來。養成習慣，靠的是回饋，不是意志力。`,
+"loop.eyebrow":`核心循環`,"loop.h2":`測，練，再測，<span class="accent">看你的數字動</span>`,"loop.lede":`不是又一次打卡，是一個讓你真正變年輕的閉環。體能年齡演算法 + 恢復模型綁定，別人抄不走。`,
+"step1.h":`測`,"step1.p":`完成 10 項體能測試，得到你的體能年齡基線。`,"step1.ex":`基線 38 歲`,
+"step2.h":`練`,"step2.p":`按當天的恢復度，AI 教練給你定制訓練計劃。`,"step2.ex":`21 天恢復訓練`,
+"step3.h":`再測`,"step3.p":`重新測試，數字會說話——看你變得更年輕。`,"step3.ex":`數字往下走`,
+"loop.banner.sub":`21 天，看你的數字往哪走。這才是健身該有的回饋。`,
+"priv.eyebrow":`隱私，是承諾也是工程`,"priv.h2":`你的身體數據，<span class="accent">只在你口袋裡</span>`,
+"priv.plede":`KinetFit <b>沒有伺服器</b>。你的體能測試、訓練記錄、身體數據存在<b>本地 SQLite</b>，0 上傳；AI 教練預設跑<b>本地大模型</b>，對話不離裝置。想用更強的遠端模型？自帶 API key，對話端到端直連你選的模型商，我們不中轉、不儲存。`,
+"p1.h4":`無分析 SDK`,"p1.p":`不接任何 analytics、不埋點、不上報使用數據。`,
+"p2.h4":`本地 SQLite`,"p2.p":`所有測試、訓練、趨勢都在你裝置的本地資料庫 + WAL 日誌裡。`,
+"p3.h4":`本地大模型 · 預設離線`,"p3.p":`AI 教練在你裝置上跑 Qwen 本地模型（llama.cpp），無需聯網，對話不出裝置。`,
+"priv.audit":`🔍 完全離線：本地大模型 + 健身數據，飛行模式下 AI 教練照常工作`,
+"cmp.eyebrow":`為什麼是 KinetFit`,"cmp.h2":`懂恢復，<span class="accent">又私密</span>`,
+"cmp.lede":`其他 app 各佔一格——Keep 內容多但要雲要訂閱，Apple Fitness 原生但封閉，Nike 只有課程庫。KinetFit 佔那個空白的交集：體能年齡 + 恢復訓練 + 本地大模型 + 完全離線。`,
+"c1.nm":`📱 Keep / FitTime`,"c1.tag":`訂閱 · 雲端`,"c1.l1":`✓ 課程內容多`,"c1.l2":`<b>✕ 不懂你的恢復度</b>`,"c1.l3":`<b>✕ 沒有體能年齡</b>`,"c1.l4":`<b>✕ 數據上雲 + 訂閱制</b>`,
+"c2.nm":`🍎 Apple Fitness`,"c2.tag":`訂閱 · 系統`,"c2.l1":`✓ 與健康 App 深度整合`,"c2.l2":`<b>✕ 封閉，無體能年齡</b>`,"c2.l3":`<b>✕ 無個人化恢復訓練</b>`,"c2.l4":`<b>✕ 需按月訂閱</b>`,
+"c3.nm":`⚡ KinetFit`,"c3.tag":`買斷 · 本地優先`,"c3.l1":`✓ 體能年齡演算法（獨家）`,"c3.l2":`✓ 恢復驅動訓練`,"c3.l3":`✓ 本地大模型 · 0 上傳`,"c3.l4":`✓ 一次買斷，無訂閱`,
+"vs1":`比 Keep 懂恢復`,"vs2":`比 Apple Fitness 私密`,"vs3":`比健身房懂你`,
+"dims.eyebrow":`六維 · 十項`,"dims.h2":`六個維度，<span class="accent">看懂你的身體</span>`,"dims.lede":`不搞花裡胡哨。10 項自重測試，歸到 6 個維度，雷達圖一眼看出你哪裡強、哪裡要補。`,
+"chal.chip":`🏁 App Store 內活動`,"chal.h2":`21 天體能年齡<span class="accent">挑戰</span>`,"chal.lede":`測一次體能年齡，跟 AI 教練練 21 天，重新測試——看你的數字怎麼變。天然的「前後對比」，從今天開始。`,"chal.k1":`天挑戰`,"chal.k2":`項測試`,"chal.k3":`更年輕`,"chal.cta":`加入挑戰 · 立即下載`,
+"faq.eyebrow":`常見問題`,"faq.h2":`你大概<span class="accent">想問的</span>`,
+"q1":`體能年齡是怎麼算出來的？準嗎？`,"a1":`基於 <b>10 項體能測試 × 6 個維度 × 7 個年齡段 × 性別區分</b>，對照 140 個基準值算出。每一項測試都有該年齡段、性別的百分位參考（比如 30 秒坐立起次數、單腿站立秒數）。它不是「體感」，是<b>可量化的相對位置</b>——你比同齡人強還是弱，一目了然。`,
+"q2":`不去健身房、沒有器械能測嗎？`,"a2":`能。10 項全是<b>自重自測</b>：坐立起、單腿站立、俯臥撐、平板支撐、坐位體前屈、6 分鐘步行、握力、台階測試、深蹲、直腿抬高。一塊平地、一支手機、一個計時器，在家就能做完。`,
+"q3":`「恢復驅動訓練」到底什麼意思？`,"a3":`大多數 app 只管讓你「練」，不管你「恢復沒」。KinetFit 讀取睡眠、心率、主觀疲勞算出<b>恢復分</b>：恢復好就上強度，沒恢復就主動拉伸休息。<b>沒恢復就不練</b>——因為進步發生在恢復裡，不在訓練裡。`,
+"q4":`AI 教練要聯網嗎？數據會上傳嗎？`,"a4":`預設<b>不用</b>。AI 教練跑在你裝置上的<b>本地大模型（Qwen / llama.cpp）</b>，無需聯網、無需 API key，對話不離裝置，飛行模式也照常。想要更強模型，也能<b>自帶 API key</b>接 DeepSeek、Claude 等——那條對話直連你選的模型商，我們不中轉、不儲存。無論哪種，你的<b>健身數據始終本地，0 上傳</b>。`,
+"q5":`本地大模型要下載嗎？佔多大空間？`,"a5":`首次使用本地大模型需一次性下載（推薦 Qwen2.5 3B，約 2GB），之後<b>永久離線運行</b>，不再消耗流量。不想下載？用自帶 key 的遠端模型即可，功能一樣。`,
+"q6":`是免費的嗎？要訂閱嗎？`,"a6":`<b>一次買斷（$4.99），永久使用，絕無訂閱。</b>體能年齡測試、恢復訓練、AI 教練一次解鎖，沒有月費、沒有自動續費、沒有功能牆。`,
+"q7":`支援哪些裝置和語言？`,"a7":`iPhone（iOS 16+）和 Apple Watch。支援<b>簡體中文、繁體中文、英文、日文</b>四種語言，AI 教練用你的母語對話。`,
+"final.h2":`測一次，<span class="accent">看看你到底幾歲</span>`,"final.sub":`體能年齡 + 恢復訓練 + 本地大模型。完全離線，一次買斷。`,
+"foot.slogan":`你的身體幾歲了？測一下，按恢復度練，再測，看數字降下來。比 Keep 懂恢復，比 Apple Fitness 私密，比健身房懂你。`,
+"foot.h.product":`產品`,"foot.h.about":`關於`,"foot.h.get":`取得`,"foot.privacy":`隱私承諾`,"foot.compare":`競品對比`,"foot.challenge":`21 天挑戰`,"foot.appstore":`App Store 下載`,"foot.contact":`聯絡開發者`,
+"foot.copy1":`© 2026 KinetFit · Built with SwiftUI + 本地大模型（llama.cpp）`,"foot.copy2":`com.kinet.fitflow.app · 一次買斷，絕無訂閱`,
+"meta.title":`KinetFit — 你的身體幾歲了 · 體能年齡 · 本地大模型 · 完全離線`,
+"meta.desc":`KinetFit 是一款本地優先的長壽健身教練。10 項測試測出你的真實體能年齡，按恢復度智能訓練，再測看數字降下來。本地大模型、完全離線、0 上傳、一次買斷。`
+},
+
+"en":{
+"nav.age":`Fitness Age`,"nav.features":`Features`,"nav.loop":`The Loop`,"nav.privacy":`Privacy`,"nav.compare":`Compare`,"nav.faq":`FAQ`,
+"cta.appstore":`App Store`,"cta.download":`Download KinetFit`,
+"hero.badge":`On-device LLM · Fully offline · Available now`,
+"hero.title":`How old is your<br><span class="grad">body, really</span>`,
+"hero.sub":`KinetFit is a <b>local-first</b> longevity fitness coach. 10 tests reveal your <b>real fitness age</b> — train by <b>recovery</b>, retest, and watch the number drop. Smarter about recovery than Keep, more private than Apple Fitness, knows you better than the gym.`,
+"hero.cta2":`See how fitness age works ↓`,
+"hero.t1":`0 uploads`,"hero.t2":`On-device LLM`,"hero.t3":`One-time · No subscription`,"hero.t4":`4 languages`,
+"unit.years":`yrs`,"unit.days":`d`,
+"mock.hi":`Morning, `,"mock.q":`How do you feel today?`,"mock.age.label":`Your fitness age`,
+"mock.age.sub":`Actual 38 · <b>fitter</b> than your peers`,"mock.age.trend":`↓ younger than last test`,
+"mock.rec.label":`🔋 Recovery`,"mock.rec.state":`Good recovery — you can train`,
+"mock.streak.label":`🔥 Streak`,"mock.streak.state":`Nicely done`,
+"mock.today.title":`Lower-body recovery`,"mock.today.desc":`25 min · tuned to your recovery`,
+"mock.coach.prefix":`Coach: `,"mock.coach.text":`Recovery looks good today — go for lower-body strength, around 70% effort.`,
+"tab.test":`Test`,"tab.train":`Train`,"tab.me":`Me`,
+"age.eyebrow":`The Killer Feature`,"age.h2":`10 tests, <span class="accent">your real age revealed</span>`,
+"age.lede":`No equipment needed — 10 self-tests, from sit-to-stand and single-leg balance to a 6-minute walk. <b>10 tests × 6 dimensions × 7 age bands × gender-specific, 140 benchmarks</b> — distilled into one number anyone can read: your fitness age.`,
+"age.list.th":`The 10 fitness tests`,"age.result.label":`Your fitness age`,"age.result.sub":`Actual 38 · <b>fitter than your age</b>`,"age.result.pct":`🏅 Top 22% of your peers (P78)`,
+"t1":`Sit-to-stand`,"t2":`Single-leg stand`,"t3":`Push-ups`,"t4":`Plank`,"t5":`Sit-and-reach`,"t6":`6-min walk`,"t7":`Grip strength`,"t8":`Step test`,"t9":`Squats`,"t10":`Straight-leg raise`,
+"dimshort.lower":`Lower`,"dimshort.upper":`Upper`,"dimshort.core":`Core`,"dimshort.flex":`Flex`,"dimshort.balance":`Balance`,"dimshort.cardio":`Cardio`,
+"dim.lower":`Lower body`,"dim.upper":`Upper body`,"dim.core":`Core`,"dim.flex":`Flexibility`,"dim.balance":`Balance`,"dim.cardio":`Cardio`,
+"feat.eyebrow":`Features`,"feat.h2":`Smart, private, <span class="accent">truly knows your body</span>`,"feat.lede":`Everything that matters — fitness age, recovery training, an on-device AI coach — and nothing that doesn't (cloud, tracking, subscriptions).`,
+"f1.h3":`Fitness age algorithm`,"f1.p":`10 tests, 6 dimensions, 7 age bands, gender-specific, 140 benchmarks. The only quantifiable 'body age' on the market — nobody else has it, nobody can copy it.`,"f1.s1":`tests`,"f1.s2":`dimensions`,"f1.s3":`benchmarks`,
+"f2.h3":`Recovery-driven training`,"f2.p":`No recovery, no training. We read sleep, heart rate and perceived effort into a recovery score — and tell you to lift heavy or just stretch. A real insight, not a gimmick.`,"f2.s1":`Recovery ≥ 40`,"f2.s2":`→ push hard`,"f2.s3":`else → active recovery`,
+"f3.h3":`On-device AI coach`,"f3.p":`One feature, done insanely well. Runs Qwen local models (llama.cpp) on your device — no network, no API key, conversations never leave. Want stronger? Bring your own key for a remote model.`,"f3.s1":`local inference`,"f3.s2":`fully offline`,
+"f4.h3":`HealthKit recovery`,"f4.p":`Pulls sleep, heart rate and steps to compute recovery automatically. No manual logging — the data speaks for itself.`,
+"f5.h3":`Trends + share cards`,"f5.p":`Fitness-age trends and recovery curves at a glance. Generate a share card after testing — 'my body is 31' turns more heads than 'lost 5kg'.`,
+"f6.h3":`Streaks that stick`,"f6.p":`Milestones for showing up, and the AI coach pulls you back the moment a streak breaks. Habits come from feedback, not willpower.`,
+"loop.eyebrow":`The Loop`,"loop.h2":`Test, train, retest — <span class="accent">watch your number move</span>`,"loop.lede":`Not another check-in, but a loop that genuinely makes you younger. Fitness-age algorithm + recovery model, bound together — nobody can copy it.`,
+"step1.h":`Test`,"step1.p":`Complete the 10 fitness tests to get your baseline.`,"step1.ex":`Baseline: 38`,
+"step2.h":`Train`,"step2.p":`Each day, the AI coach builds a plan around your recovery.`,"step2.ex":`21-day plan`,
+"step3.h":`Retest`,"step3.p":`Test again — the numbers speak. Watch yourself get younger.`,"step3.ex":`the number drops`,
+"loop.banner.sub":`21 days — see where your number goes. This is the feedback fitness should give.`,
+"priv.eyebrow":`Privacy — a promise, and engineering`,"priv.h2":`Your body data, <span class="accent">stays in your pocket</span>`,
+"priv.plede":`KinetFit <b>has no server</b>. Your fitness tests, training logs and body data live in <b>on-device SQLite</b> — zero uploads. The AI coach runs an <b>on-device model</b> by default, so conversations never leave your device. Want a stronger remote model? Bring your own API key — that chat goes end-to-end to the model provider you choose; we never relay or store it.`,
+"p1.h4":`No analytics SDK`,"p1.p":`No analytics, no event tracking, no usage reporting — ever.`,
+"p2.h4":`On-device SQLite`,"p2.p":`Every test, workout and trend lives in your device's local database + WAL journal.`,
+"p3.h4":`On-device model · offline`,"p3.p":`The AI coach runs a Qwen model (llama.cpp) on your device — no network needed, conversations never leave.`,
+"priv.audit":`🔍 Fully offline: on-device model + fitness data — the AI coach works in airplane mode`,
+"cmp.eyebrow":`Why KinetFit`,"cmp.h2":`Knows recovery, <span class="accent">and stays private</span>`,
+"cmp.lede":`Other apps each own one corner — Keep has content but wants the cloud and a subscription; Apple Fitness is native but closed; Nike is just a class library. KinetFit owns the empty intersection: fitness age + recovery training + on-device AI + fully offline.`,
+"c1.nm":`📱 Keep / FitTime`,"c1.tag":`Subscription · Cloud`,"c1.l1":`✓ Lots of content`,"c1.l2":`<b>✕ No concept of recovery</b>`,"c1.l3":`<b>✕ No fitness age</b>`,"c1.l4":`<b>✕ Cloud data + subscription</b>`,
+"c2.nm":`🍎 Apple Fitness`,"c2.tag":`Subscription · System`,"c2.l1":`✓ Deep Health integration`,"c2.l2":`<b>✕ Closed, no fitness age</b>`,"c2.l3":`<b>✕ No personalized recovery</b>`,"c2.l4":`<b>✕ Monthly subscription</b>`,
+"c3.nm":`⚡ KinetFit`,"c3.tag":`One-time · Local-first`,"c3.l1":`✓ Fitness age algorithm (exclusive)`,"c3.l2":`✓ Recovery-driven training`,"c3.l3":`✓ On-device AI · 0 uploads`,"c3.l4":`✓ One-time purchase, no subscription`,
+"vs1":`Smarter about recovery than Keep`,"vs2":`More private than Apple Fitness`,"vs3":`Knows you better than the gym`,
+"dims.eyebrow":`6 dimensions · 10 tests`,"dims.h2":`Six dimensions, <span class="accent">see your body clearly</span>`,"dims.lede":`Nothing fancy. 10 bodyweight tests map to 6 dimensions — the radar shows your strengths and gaps at a glance.`,
+"chal.chip":`🏁 App Store featured event`,"chal.h2":`21-Day Fitness Age <span class="accent">Challenge</span>`,"chal.lede":`Test your fitness age, train with the AI coach for 21 days, then retest — see where your number goes. A natural before-and-after, starting today.`,"chal.k1":`day challenge`,"chal.k2":`tests`,"chal.k3":`get younger`,"chal.cta":`Join the challenge · Download`,
+"faq.eyebrow":`FAQ`,"faq.h2":`What you're <span class="accent">probably wondering</span>`,
+"q1":`How is fitness age calculated? Is it accurate?`,"a1":`From <b>10 fitness tests × 6 dimensions × 7 age bands × gender-specific</b>, scored against 140 benchmarks. Each test has age- and gender-specific percentile references (e.g. sit-to-stand reps in 30s, single-leg stand seconds). It's not a 'feeling' — it's a <b>quantified relative position</b>: stronger or weaker than your peers, at a glance.`,
+"q2":`Can I test without a gym or equipment?`,"a2":`Yes. All 10 are <b>bodyweight self-tests</b>: sit-to-stand, single-leg stand, push-ups, plank, sit-and-reach, 6-min walk, grip, step test, squats, straight-leg raise. A flat floor, your phone and a timer — do it all at home.`,
+"q3":`What does 'recovery-driven training' actually mean?`,"a3":`Most apps only tell you to train, never whether you've recovered. KinetFit reads sleep, heart rate and perceived effort into a <b>recovery score</b>: recovered well → push the intensity; not recovered → stretch and rest. <b>No recovery, no training</b> — because progress happens during recovery, not during the workout.`,
+"q4":`Does the AI coach need internet? Will my data be uploaded?`,"a4":`Not by default. The coach runs an <b>on-device model (Qwen / llama.cpp)</b> — no network, no API key, conversations never leave your device, and it works in airplane mode. Want a stronger model? You can <b>bring your own API key</b> for DeepSeek, Claude and others — that chat goes directly to the provider you pick; we never relay or store it. Either way, your <b>fitness data stays local, zero uploads</b>.`,
+"q5":`Do I need to download the on-device model? How big?`,"a5":`First use downloads the model once (Qwen2.5 3B recommended, ~2GB), then it <b>runs offline permanently</b> with no further data use. Don't want to download it? Use a remote model with your own key — same features.`,
+"q6":`Is it free? Is there a subscription?`,"a6":`<b>One-time purchase ($4.99), yours forever, absolutely no subscription.</b> Fitness-age testing, recovery training and the AI coach all unlock at once — no monthly fee, no auto-renewal, no paywalls.`,
+"q7":`Which devices and languages are supported?`,"a7":`iPhone (iOS 16+) and Apple Watch. Supports <b>Simplified Chinese, Traditional Chinese, English and Japanese</b> — the AI coach chats in your language.`,
+"final.h2":`Test once — <span class="accent">see how old you really are</span>`,"final.sub":`Fitness age + recovery training + on-device AI. Fully offline, one-time purchase.`,
+"foot.slogan":`How old is your body? Test it, train by recovery, retest, watch the number drop. Smarter about recovery than Keep, more private than Apple Fitness, knows you better than the gym.`,
+"foot.h.product":`Product`,"foot.h.about":`About`,"foot.h.get":`Get it`,"foot.privacy":`Privacy promise`,"foot.compare":`Comparison`,"foot.challenge":`21-Day Challenge`,"foot.appstore":`Download on App Store`,"foot.contact":`Contact developer`,
+"foot.copy1":`© 2026 KinetFit · Built with SwiftUI + on-device LLM (llama.cpp)`,"foot.copy2":`com.kinet.fitflow.app · One-time purchase, no subscription`,
+"meta.title":`KinetFit — How old is your body · Fitness age · On-device AI · Fully offline`,
+"meta.desc":`KinetFit is a local-first longevity fitness coach. 10 tests reveal your real fitness age — train by recovery, retest, watch the number drop. On-device AI, fully offline, zero uploads, one-time purchase.`
+},
+
+"ja":{
+"nav.age":`体力年齢`,"nav.features":`機能`,"nav.loop":`コアサイクル`,"nav.privacy":`プライバシー`,"nav.compare":`比較`,"nav.faq":`FAQ`,
+"cta.appstore":`App Store`,"cta.download":`KinetFit をダウンロード`,
+"hero.badge":`ローカル LLM ・完全オフライン ・配信中`,
+"hero.title":`あなたの体は、<br><span class="grad">本当は何歳？</span>`,
+"hero.sub":`KinetFit は<b>ローカルファースト</b>の長寿フィットネスコーチです。10 種のテストで<b>本当の体力年齢</b>を割り出し、<b>回復度</b>に合わせて賢くトレーニング。再測定して、数字が下がるのを見る。Keep より回復を理解し、Apple Fitness よりプライベート、ジムよりあなたを知っている。`,
+"hero.cta2":`体力年齢の測り方を見る ↓`,
+"hero.t1":`0 アップロード`,"hero.t2":`ローカル LLM`,"hero.t3":`買い切り ・サブスクなし`,"hero.t4":`4 言語`,
+"unit.years":`歳`,"unit.days":`日`,
+"mock.hi":`おはよう、`,"mock.q":`今日の調子はどう？`,"mock.age.label":`あなたの体力年齢`,
+"mock.age.sub":`実年齢 38 歳 ・同年代より<b>体力が若い</b>`,"mock.age.trend":`↓ 前回より若返った`,
+"mock.rec.label":`🔋 回復度`,"mock.rec.state":`回復良好、トレーニング可`,
+"mock.streak.label":`🔥 連続記録`,"mock.streak.state":`よく続けてる`,
+"mock.today.title":`下肢リカバリートレーニング`,"mock.today.desc":`25 分 ・回復度に合わせて調整`,
+"mock.coach.prefix":`コーチ：`,"mock.coach.text":`今日は回復良好。下肢の筋力を、強度 7 割くらいでやりましょう。`,
+"tab.test":`測`,"tab.train":`練`,"tab.me":`私`,
+"age.eyebrow":`最大の武器`,"age.h2":`10 種のテストで、<span class="accent">本当の年齢がわかる</span>`,
+"age.lede":`器具は不要。シットトゥスタンドや片足立ちから 6 分間歩行まで、10 種の自測テスト。<b>10 種 × 6 次元 × 7 年齢帯 × 性別区分、140 の基準値</b>から、誰にでもわかる一つの数字＝あなたの体力年齢を導き出します。`,
+"age.list.th":`10 種の体力テスト`,"age.result.label":`あなたの体力年齢`,"age.result.sub":`実年齢 38 歳 ・<b>体力が若い</b>`,"age.result.pct":`🏅 同年代の上位 22%（P78）`,
+"t1":`シットトゥスタンド`,"t2":`片脚立ち`,"t3":`腕立て伏せ`,"t4":`プランク`,"t5":`座位体前屈`,"t6":`6 分間歩行`,"t7":`握力`,"t8":`ステップテスト`,"t9":`スクワット`,"t10":`レッグレイズ`,
+"dimshort.lower":`下肢`,"dimshort.upper":`上肢`,"dimshort.core":`体幹`,"dimshort.flex":`柔軟`,"dimshort.balance":`バランス`,"dimshort.cardio":`心肺`,
+"dim.lower":`下肢筋力`,"dim.upper":`上肢筋力`,"dim.core":`体幹`,"dim.flex":`柔軟性`,"dim.balance":`バランス`,"dim.cardio":`心肺`,
+"feat.eyebrow":`機能`,"feat.h2":`賢く、プライベート、<span class="accent">体を本当に理解する</span>`,"feat.lede":`必要なものは全部――体力年齢、回復トレーニング、ローカル LLM コーチ。不要なもの（クラウド、トラッキング、サブスク）は一切なし。`,
+"f1.h3":`体力年齢アルゴリズム`,"f1.p":`10 種のテスト、6 次元、7 年齢帯、性別区分、140 の基準値。市場で唯一、定量化された「体の年齢」。他社にはなく、真似もできない。`,"f1.s1":`種テスト`,"f1.s2":`次元`,"f1.s3":`基準値`,
+"f2.h3":`回復ドリブン・トレーニング`,"f2.p":`回復してなければ練しない。睡眠・心拍・主観的疲労から回復スコアを算出し、負荷を上げるべきか、ストレッチで休むべきかを教えます。真の洞察、ただの飾りではない。`,"f2.s1":`回復 ≥ 40`,"f2.s2":`→ 強度アップ`,"f2.s3":`それ以外 → アクティブリカバリー`,
+"f3.h3":`ローカル LLM の AI コーチ`,"f3.p":`一つを極める。端末上で Qwen シリーズのローカルモデル（llama.cpp）を動かし、通信も API キーも不要、会話は端末から出ない。より強力なモデルがいい？ 自前キーでリモートモデルに接続。`,"f3.s1":`ローカル推論`,"f3.s2":`完全オフライン`,
+"f4.h3":`HealthKit 連携の回復度`,"f4.p":`睡眠・心拍・歩数を取り込み、回復度を自動で算出。毎日手入力する必要はありません。データが自ら物語ります。`,
+"f5.h3":`推移 + シェアカード`,"f5.p":`体力年齢の推移や回復の曲線が一目でわかります。測定後にシェアカードを一発作成――「私の体は 31 歳」は「5kg 減」より目を引きます。`,
+"f6.h3":`継続は一人じゃない`,"f6.p":`続けると記録が付き、連続記録が途切れると AI コーチがすぐ引き戻します。習慣化は意志力よりフィードバックで。`,
+"loop.eyebrow":`コアサイクル`,"loop.h2":`測り、練し、再測定、<span class="accent">数字がどう変わるか見る</span>`,"loop.lede":`ただの記録打卡ではない、本当に若返る閉ループ。体力年齢アルゴリズムと回復モデルを一体化、他社にはコピーできません。`,
+"step1.h":`測る`,"step1.p":`10 種の体力テストを完了し、体力年齢のベースラインを得る。`,"step1.ex":`ベース 38 歳`,
+"step2.h":`練する`,"step2.p":`その日の回復度に合わせ、AI コーチが専用プランを作成。`,"step2.ex":`21 日間のプラン`,
+"step3.h":`再測定`,"step3.p":`もう一度測る。数字が語る――若返ったか見る。`,"step3.ex":`数字が下がる`,
+"loop.banner.sub":`21 日で、数字がどう変わるか見る。それがフィットネスに本来あるべきフィードバック。`,
+"priv.eyebrow":`プライバシー――約束であり、設計`,"priv.h2":`あなたの体のデータは、<span class="accent">ポケットの中だけ</span>`,
+"priv.plede":`KinetFit には<b>サーバーがありません</b>。体力テスト・トレーニング記録・体のデータは<b>ローカル SQLite</b>に保存され、アップロードはゼロ。AI コーチはデフォルトで<b>ローカル LLM</b>を動かし、会話は端末から出ません。より強力なリモートモデルがいい？ 自前の API キーで、会話は選んだモデルプロバイダーとエンドツーエンドで直結。私たちは中継も保存もしません。`,
+"p1.h4":`解析 SDK なし`,"p1.p":`analytics なし、トラッキングなし、利用データの送信なし。`,
+"p2.h4":`ローカル SQLite`,"p2.p":`すべてのテスト、トレーニング、推移は端末のローカル DB + WAL にあります。`,
+"p3.h4":`ローカルモデル ・デフォルトでオフライン`,"p3.p":`AI コーチは端末上で Qwen ローカルモデル（llama.cpp）を動かします。通信不要、会話は端末から出ません。`,
+"priv.audit":`🔍 完全オフライン：ローカル LLM + 体のデータ。機内モードでも AI コーチは動く`,
+"cmp.eyebrow":`なぜ KinetFit か`,"cmp.h2":`回復を知り、<span class="accent">プライベートを保つ</span>`,
+"cmp.lede":`他のアプリはそれぞれ一画を占める――Keep はコンテンツ豊富だがクラウドとサブスク要、Apple Fitness はネイティブだが閉鎖的、Nike はクラスのライブラリだけ。KinetFit はその空白の交点を占める：体力年齢 + 回復トレーニング + ローカル LLM + 完全オフライン。`,
+"c1.nm":`📱 Keep / FitTime`,"c1.tag":`サブスク ・クラウド`,"c1.l1":`✓ コンテンツが豊富`,"c1.l2":`<b>✕ 回復度の概念なし</b>`,"c1.l3":`<b>✕ 体力年齢なし</b>`,"c1.l4":`<b>✕ クラウドデータ + サブスク</b>`,
+"c2.nm":`🍎 Apple Fitness`,"c2.tag":`サブスク ・システム標準`,"c2.l1":`✓ ヘルスアプリと深く連携`,"c2.l2":`<b>✕ 閉鎖的、体力年齢なし</b>`,"c2.l3":`<b>✕ 個別回復トレーニングなし</b>`,"c2.l4":`<b>✕ 月額サブスク</b>`,
+"c3.nm":`⚡ KinetFit`,"c3.tag":`買い切り ・ローカルファースト`,"c3.l1":`✓ 体力年齢アルゴリズム（独占）`,"c3.l2":`✓ 回復ドリブン・トレーニング`,"c3.l3":`✓ ローカル LLM ・0 アップロード`,"c3.l4":`✓ 買い切り、サブスクなし`,
+"vs1":`Keep より回復を知る`,"vs2":`Apple Fitness よりプライベート`,"vs3":`ジムよりあなたを知る`,
+"dims.eyebrow":`6 次元 ・ 10 種`,"dims.h2":`6 つの次元で、<span class="accent">体をはっきり見せる</span>`,"dims.lede":`無駄な飾りなし。10 種の自重テストを 6 次元にまとめ、レーダーチャートで強みと課題を一目で把握。`,
+"chal.chip":`🏁 App Store の注目イベント`,"chal.h2":`21 日間 体力年齢<span class="accent">チャレンジ</span>`,"chal.lede":`一度体力年齢を測り、AI コーチと 21 日間トレーニングして、再測定――数字がどう変わるかを見る。自然なビフォーアフター、今日から始まる。`,"chal.k1":`日間チャレンジ`,"chal.k2":`種テスト`,"chal.k3":`若返る`,"chal.cta":`チャレンジに参加 ・今すぐダウンロード`,
+"faq.eyebrow":`よくある質問`,"faq.h2":`たぶん<span class="accent">気になっていること</span>`,
+"q1":`体力年齢はどう計算されますか？正確？`,"a1":`<b>10 種の体力テスト × 6 次元 × 7 年齢帯 × 性別区分</b>に基づき、140 の基準値で採点します。各テストには年齢帯・性別ごとの百分位の目安（例：30 秒間のシットトゥスタンド回数、片脚立ち秒数）があります。「感覚」ではなく<b>定量化された相対位置</b>――同年代より強いか弱いかが一目でわかります。`,
+"q2":`ジムなし、器具なしだと測れますか？`,"a2":`測れます。10 種すべて<b>自重の自測テスト</b>：シットトゥスタンド、片脚立ち、腕立て伏せ、プランク、座位体前屈、6 分間歩行、握力、ステップテスト、スクワット、レッグレイズ。平らな床とスマホ、タイマーだけで家で完結します。`,
+"q3":`「回復ドリブン・トレーニング」とは？`,"a3":`たいていのアプリは「練しろ」と言うだけで、回復しているかは問いません。KinetFit は睡眠・心拍・主観的疲労から<b>回復スコア</b>を算出し、回復良好なら強度を上げ、未回復ならストレッチで休ませます。<b>回復してなければ練しない</b>――成長は回復の中で起き、トレーニング中ではないからです。`,
+"q4":`AI コーチは通信が必要？データはアップロードされる？`,"a4":`デフォルトでは<b>不要</b>。AI コーチは端末上の<b>ローカル LLM（Qwen / llama.cpp）</b>で動き、通信も API キーも不要、会話は端末から出ず、機内モードでも動きます。より強力なモデルが欲しければ、自前の<b>API キー</b>で DeepSeek や Claude 等に接続――その会話は選んだプロバイダーと直結し、私たちは中継も保存もしません。どちらでも<b>体のデータはローカルのまま、アップロードゼロ</b>です。`,
+"q5":`ローカルモデルはダウンロードが必要？どれくらい容量をとる？`,"a5":`初回のみローカルモデルをダウンロードし（推奨は Qwen2.5 3B、約 2GB）、以降は<b>永続的にオフラインで動作</b>、通信量はかかりません。ダウンロードしたくない？ 自前キーのリモートモデルを使えば機能は同じです。`,
+"q6":`無料ですか？サブスクは？`,"a6":`<b>買い切り（$4.99）で永久利用、サブスクは一切なし。</b>体力年齢テスト、回復トレーニング、AI コーチが一度にアンロック――月額料も自動更新もペイウォールもありません。`,
+"q7":`対応端末と言語は？`,"a7":`iPhone（iOS 16+）と Apple Watch。<b>簡体字中国語、繁体字中国語、英語、日本語</b>の 4 言語に対応し、AI コーチはあなたの言葉で対話します。`,
+"final.h2":`一度測って、<span class="accent">本当の年齢を確かめる</span>`,"final.sub":`体力年齢 + 回復トレーニング + ローカル LLM。完全オフライン、買い切り。`,
+"foot.slogan":`あなたの体は何歳？測って、回復度に合わせて練し、再測定して、数字が下がるのを見る。Keep より回復を知り、Apple Fitness よりプライベート、ジムよりあなたを知る。`,
+"foot.h.product":`製品`,"foot.h.about":`概要`,"foot.h.get":`入手`,"foot.privacy":`プライバシー`,"foot.compare":`比較`,"foot.challenge":`21 日チャレンジ`,"foot.appstore":`App Store でダウンロード`,"foot.contact":`開発者に連絡`,
+"foot.copy1":`© 2026 KinetFit ・ Built with SwiftUI + ローカル LLM（llama.cpp）`,"foot.copy2":`com.kinet.fitflow.app ・買い切り、サブスクなし`,
+"meta.title":`KinetFit ― あなたの体は何歳 ・体力年齢 ・ローカル LLM ・完全オフライン`,
+"meta.desc":`KinetFit はローカルファーストの長寿フィットネスコーチ。10 種のテストで本当の体力年齢を割り出し、回復度に合わせて賢くトレーニング、再測定して数字の低下を見る。ローカル LLM、完全オフライン、0 アップロード、買い切り。`
+}};
+
+function applyLang(lang){
+  const dict = I18N[lang] || I18N["zh-Hans"];
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k = el.getAttribute("data-i18n");
+    if(dict[k] !== undefined) el.innerHTML = dict[k];
+  });
+  if(dict["meta.title"]) document.title = dict["meta.title"];
+  const md = document.querySelector('meta[name="description"]');
+  if(md && dict["meta.desc"]) md.setAttribute("content", dict["meta.desc"]);
+  const ogd = document.querySelector('meta[property="og:description"]');
+  if(ogd && dict["hero.badge"]) ogd.setAttribute("content", dict["hero.badge"]);
+  document.querySelectorAll(".lang-switch button").forEach(b=>{
+    b.classList.toggle("active", b.getAttribute("data-lang") === lang);
+  });
+  try{ localStorage.setItem("kf-lang", lang); }catch(e){}
+}
+document.querySelectorAll(".lang-switch button").forEach(b=>{
+  b.addEventListener("click", ()=> applyLang(b.getAttribute("data-lang")));
+});
+(function init(){
+  let lang = null;
+  try{ lang = localStorage.getItem("kf-lang"); }catch(e){}
+  if(!lang){
+    const bl = (navigator.language || "").toLowerCase();
+    if(bl.startsWith("ja")) lang = "ja";
+    else if(bl.startsWith("zh") && bl.includes("hant")) lang = "zh-Hant";
+    else if(bl.startsWith("en")) lang = "en";
+    else lang = "zh-Hans";
+  }
+  applyLang(lang);
+})();
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const links=[...document.querySelectorAll('.nav-links a')];
+const secs=links.map(l=>document.querySelector(l.getAttribute('href'))).filter(Boolean);
+const spy=new IntersectionObserver((es)=>{es.forEach(s=>{if(s.isIntersecting){links.forEach(l=>l.style.color='');const a=links.find(l=>l.getAttribute('href')==='#'+s.target.id);if(a)a.style.color='var(--text)';}});},{rootMargin:'-45% 0px -50% 0px'});
+secs.forEach(s=>spy.observe(s));
+</script>
+</body>
+</html>
