@@ -386,7 +386,7 @@
   <div class="center reveal section-head">
     <div class="eyebrow" style="justify-content:center" data-i18n="feat.eyebrow">功能</div>
     <h2 data-i18n="feat.h2">聪明、私密、<span class="accent">真懂身体</span></h2>
-    <p class="lede" style="margin:0 auto" data-i18n="feat.lede">该有的都有——体能年龄、恢复训练、本地大模型教练；不该有的（云端、追踪、订阅）一个没有。</p>
+    <p class="lede" style="margin:0 auto" data-i18n="feat.lede">该有的都有——体能年龄、恢复训练、1300+ 动作库、拍照识卡路里、本地大模型教练；不该有的（云端、追踪、订阅）一个没有。</p>
   </div>
   <div class="grid g3 reveal">
     <div class="card">
@@ -421,6 +421,24 @@
       <div class="ic" style="background:rgba(255,69,58,.16);color:var(--red)">🔥</div>
       <h3 data-i18n="f6.h3">连胜不孤单</h3>
       <p data-i18n="f6.p">坚持打卡有纪念，连胜断了 AI 教练第一时间拉你回来。养成习惯，靠的是反馈，不是意志力。</p>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:rgba(48,209,200,.16);color:#30D1C8">📚</div>
+      <h3 data-i18n="f7.h3">1300+ 动作库</h3>
+      <p data-i18n="f7.p">每个动作都有名称、分步说明和训练要点。AI 给你的计划不是凭空生成，是从这套真实动作库里匹配出来的——点开就看怎么练。</p>
+      <div class="stat"><span class="s"><b>1324</b><span data-i18n="f7.s1">个动作</span></span><span class="s" data-i18n="f7.s2">分步讲解</span></div>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:rgba(255,166,48,.16);color:var(--amber)">🍱</div>
+      <h3 data-i18n="f8.h3">拍照识别卡路里</h3>
+      <p data-i18n="f8.p">拍一张餐食照片，几秒返回卡路里和蛋白质。独立视觉模型，一盘多种食物也能认准——记录饮食不用再手动查。</p>
+      <div class="stat"><span class="s" data-i18n="f8.s1">视觉模型识别</span><span class="s" data-i18n="f8.s2">多菜一盘也准</span></div>
+    </div>
+    <div class="card">
+      <div class="ic" style="background:rgba(94,124,255,.16);color:#5E7CFF">🗓️</div>
+      <h3 data-i18n="f9.h3">AI 训练计划</h3>
+      <p data-i18n="f9.p">不是套模板。每周计划从动作库真实匹配，按你的体能年龄、恢复度和目标生成——练什么、几组几次，都为你定。</p>
+      <div class="stat"><span class="s" data-i18n="f9.s1">每周更新计划</span><span class="s" data-i18n="f9.s2">按恢复度调强度</span></div>
     </div>
   </div>
 </section>
@@ -653,13 +671,16 @@ const I18N = {
 "t1":`坐立起`,"t2":`单腿站立`,"t3":`俯卧撑`,"t4":`平板支撑`,"t5":`坐位体前屈`,"t6":`6 分钟步行`,"t7":`握力`,"t8":`台阶测试`,"t9":`深蹲`,"t10":`直腿抬高`,
 "dimshort.lower":`下肢`,"dimshort.upper":`上肢`,"dimshort.core":`核心`,"dimshort.flex":`柔韧`,"dimshort.balance":`平衡`,"dimshort.cardio":`心肺`,
 "dim.lower":`下肢力量`,"dim.upper":`上肢力量`,"dim.core":`核心`,"dim.flex":`柔韧`,"dim.balance":`平衡`,"dim.cardio":`心肺`,
-"feat.eyebrow":`功能`,"feat.h2":`聪明、私密、<span class="accent">真懂身体</span>`,"feat.lede":`该有的都有——体能年龄、恢复训练、本地大模型教练；不该有的（云端、追踪、订阅）一个没有。`,
+"feat.eyebrow":`功能`,"feat.h2":`聪明、私密、<span class="accent">真懂身体</span>`,"feat.lede":`该有的都有——体能年龄、恢复训练、1300+ 动作库、拍照识卡路里、本地大模型教练；不该有的（云端、追踪、订阅）一个没有。`,
 "f1.h3":`体能年龄算法`,"f1.p":`10 项测试、6 维度、7 个年龄段、性别区分，140 个基准值。市面唯一可量化的「身体年龄」，别人没有，抄不走。`,"f1.s1":`项测试`,"f1.s2":`维度`,"f1.s3":`基准值`,
 "f2.h3":`恢复驱动训练`,"f2.p":`没恢复就不练。读取睡眠、心率、主观疲劳算出恢复分，告诉你是该上重量，还是该拉伸休息。真洞见，不是噱头。`,"f2.s1":`恢复 ≥ 40`,"f2.s2":`→ 上强度`,"f2.s3":`否则 → 主动恢复`,
 "f3.h3":`本地大模型 AI 教练`,"f3.p":`一个做到极致。设备上跑 Qwen 系列本地模型（llama.cpp），无需联网、无需 API key，对话不离设备。要更强？自带 key 接远程模型。`,"f3.s1":`本地推理`,"f3.s2":`全程离线`,
 "f4.h3":`HealthKit 恢复度`,"f4.p":`接入睡眠、心率、步数，自动算恢复度。不用每天手动填表，数据自己说话。`,
 "f5.h3":`趋势 + 分享卡`,"f5.p":`体能年龄趋势、恢复曲线一目了然。测完一键生成分享卡，「我身体 31 岁」比「减了 5kg」更抓眼球。`,
 "f6.h3":`连胜不孤单`,"f6.p":`坚持打卡有纪念，连胜断了 AI 教练第一时间拉你回来。养成习惯，靠的是反馈，不是意志力。`,
+"f7.h3":`1300+ 动作库`,"f7.p":`每个动作都有名称、分步说明和训练要点。AI 给你的计划不是凭空生成，是从这套真实动作库里匹配出来的——点开就看怎么练。`,"f7.s1":`个动作`,"f7.s2":`分步讲解`,
+"f8.h3":`拍照识别卡路里`,"f8.p":`拍一张餐食照片，几秒返回卡路里和蛋白质。独立视觉模型，一盘多种食物也能认准——记录饮食不用再手动查。`,"f8.s1":`视觉模型识别`,"f8.s2":`多菜一盘也准`,
+"f9.h3":`AI 训练计划`,"f9.p":`不是套模板。每周计划从动作库真实匹配，按你的体能年龄、恢复度和目标生成——练什么、几组几次，都为你定。`,"f9.s1":`每周更新计划`,"f9.s2":`按恢复度调强度`,
 "loop.eyebrow":`核心循环`,"loop.h2":`测，练，再测，<span class="accent">看你的数字动</span>`,"loop.lede":`不是又一次打卡，是一个让你真正变年轻的闭环。体能年龄算法 + 恢复模型绑定，别人抄不走。`,
 "step1.h":`测`,"step1.p":`完成 10 项体能测试，得到你的体能年龄基线。`,"step1.ex":`基线 38 岁`,
 "step2.h":`练`,"step2.p":`按当天的恢复度，AI 教练给你定制训练计划。`,"step2.ex":`21 天恢复训练`,
@@ -717,13 +738,16 @@ const I18N = {
 "t1":`坐立起`,"t2":`單腿站立`,"t3":`俯臥撐`,"t4":`平板支撐`,"t5":`坐位體前屈`,"t6":`6 分鐘步行`,"t7":`握力`,"t8":`台階測試`,"t9":`深蹲`,"t10":`直腿抬高`,
 "dimshort.lower":`下肢`,"dimshort.upper":`上肢`,"dimshort.core":`核心`,"dimshort.flex":`柔軟`,"dimshort.balance":`平衡`,"dimshort.cardio":`心肺`,
 "dim.lower":`下肢力量`,"dim.upper":`上肢力量`,"dim.core":`核心`,"dim.flex":`柔軟度`,"dim.balance":`平衡`,"dim.cardio":`心肺`,
-"feat.eyebrow":`功能`,"feat.h2":`聰明、私密、<span class="accent">真懂身體</span>`,"feat.lede":`該有的都有——體能年齡、恢復訓練、本地大模型教練；不該有的（雲端、追蹤、訂閱）一個沒有。`,
+"feat.eyebrow":`功能`,"feat.h2":`聰明、私密、<span class="accent">真懂身體</span>`,"feat.lede":`該有的都有——體能年齡、恢復訓練、1300+ 動作庫、拍照辨識卡路里、本地大模型教練；不該有的（雲端、追蹤、訂閱）一個沒有。`,
 "f1.h3":`體能年齡演算法`,"f1.p":`10 項測試、6 維度、7 個年齡段、性別區分，140 個基準值。市面唯一可量化的「身體年齡」，別人沒有，抄不走。`,"f1.s1":`項測試`,"f1.s2":`維度`,"f1.s3":`基準值`,
 "f2.h3":`恢復驅動訓練`,"f2.p":`沒恢復就不練。讀取睡眠、心率、主觀疲勞算出恢復分，告訴你是該上重量，還是該拉伸休息。真洞見，不是噱頭。`,"f2.s1":`恢復 ≥ 40`,"f2.s2":`→ 上強度`,"f2.s3":`否則 → 主動恢復`,
 "f3.h3":`本地大模型 AI 教練`,"f3.p":`一個做到極致。裝置上跑 Qwen 系列本地模型（llama.cpp），無需聯網、無需 API key，對話不離裝置。要更強？自帶 key 接遠端模型。`,"f3.s1":`本地推理`,"f3.s2":`全程離線`,
 "f4.h3":`HealthKit 恢復度`,"f4.p":`接入睡眠、心率、步數，自動算恢復度。不用每天手動填表，數據自己說話。`,
 "f5.h3":`趨勢 + 分享卡`,"f5.p":`體能年齡趨勢、恢復曲線一目了然。測完一鍵生成分享卡，「我身體 31 歲」比「減了 5kg」更抓眼球。`,
 "f6.h3":`連勝不孤單`,"f6.p":`堅持打卡有紀念，連勝斷了 AI 教練第一時間拉你回來。養成習慣，靠的是回饋，不是意志力。`,
+"f7.h3":`1300+ 動作庫`,"f7.p":`每個動作都有名稱、分步說明和訓練要點。AI 給你的計劃不是憑空生成，是從這套真實動作庫裡匹配出來的——點開就看怎麼練。`,"f7.s1":`個動作`,"f7.s2":`分步講解`,
+"f8.h3":`拍照辨識卡路里`,"f8.p":`拍一張餐食照片，幾秒返回卡路里和蛋白質。獨立視覺模型，一盤多種食物也能認準——記錄飲食不用再手動查。`,"f8.s1":`視覺模型辨識`,"f8.s2":`多菜一盤也準`,
+"f9.h3":`AI 訓練計劃`,"f9.p":`不是套範本。每週計劃從動作庫真實匹配，按你的體能年齡、恢復度和目標生成——練什麼、幾組幾次，都為你定。`,"f9.s1":`每週更新計劃`,"f9.s2":`按恢復度調強度`,
 "loop.eyebrow":`核心循環`,"loop.h2":`測，練，再測，<span class="accent">看你的數字動</span>`,"loop.lede":`不是又一次打卡，是一個讓你真正變年輕的閉環。體能年齡演算法 + 恢復模型綁定，別人抄不走。`,
 "step1.h":`測`,"step1.p":`完成 10 項體能測試，得到你的體能年齡基線。`,"step1.ex":`基線 38 歲`,
 "step2.h":`練`,"step2.p":`按當天的恢復度，AI 教練給你定制訓練計劃。`,"step2.ex":`21 天恢復訓練`,
@@ -781,13 +805,16 @@ const I18N = {
 "t1":`Sit-to-stand`,"t2":`Single-leg stand`,"t3":`Push-ups`,"t4":`Plank`,"t5":`Sit-and-reach`,"t6":`6-min walk`,"t7":`Grip strength`,"t8":`Step test`,"t9":`Squats`,"t10":`Straight-leg raise`,
 "dimshort.lower":`Lower`,"dimshort.upper":`Upper`,"dimshort.core":`Core`,"dimshort.flex":`Flex`,"dimshort.balance":`Balance`,"dimshort.cardio":`Cardio`,
 "dim.lower":`Lower body`,"dim.upper":`Upper body`,"dim.core":`Core`,"dim.flex":`Flexibility`,"dim.balance":`Balance`,"dim.cardio":`Cardio`,
-"feat.eyebrow":`Features`,"feat.h2":`Smart, private, <span class="accent">truly knows your body</span>`,"feat.lede":`Everything that matters — fitness age, recovery training, an on-device AI coach — and nothing that doesn't (cloud, tracking, subscriptions).`,
+"feat.eyebrow":`Features`,"feat.h2":`Smart, private, <span class="accent">truly knows your body</span>`,"feat.lede":`Everything that matters — fitness age, recovery training, a 1300+ exercise library, photo calorie tracking, an on-device AI coach — and nothing that doesn't (cloud, tracking, subscriptions).`,
 "f1.h3":`Fitness age algorithm`,"f1.p":`10 tests, 6 dimensions, 7 age bands, gender-specific, 140 benchmarks. The only quantifiable 'body age' on the market — nobody else has it, nobody can copy it.`,"f1.s1":`tests`,"f1.s2":`dimensions`,"f1.s3":`benchmarks`,
 "f2.h3":`Recovery-driven training`,"f2.p":`No recovery, no training. We read sleep, heart rate and perceived effort into a recovery score — and tell you to lift heavy or just stretch. A real insight, not a gimmick.`,"f2.s1":`Recovery ≥ 40`,"f2.s2":`→ push hard`,"f2.s3":`else → active recovery`,
 "f3.h3":`On-device AI coach`,"f3.p":`One feature, done insanely well. Runs Qwen local models (llama.cpp) on your device — no network, no API key, conversations never leave. Want stronger? Bring your own key for a remote model.`,"f3.s1":`local inference`,"f3.s2":`fully offline`,
 "f4.h3":`HealthKit recovery`,"f4.p":`Pulls sleep, heart rate and steps to compute recovery automatically. No manual logging — the data speaks for itself.`,
 "f5.h3":`Trends + share cards`,"f5.p":`Fitness-age trends and recovery curves at a glance. Generate a share card after testing — 'my body is 31' turns more heads than 'lost 5kg'.`,
 "f6.h3":`Streaks that stick`,"f6.p":`Milestones for showing up, and the AI coach pulls you back the moment a streak breaks. Habits come from feedback, not willpower.`,
+"f7.h3":`1300+ exercise library`,"f7.p":`Every move has a name, step-by-step cues and coaching points. Your AI plan isn't generated from thin air — it's matched from a real library. Tap any exercise to see exactly how it's done.`,"f7.s1":`exercises`,"f7.s2":`step-by-step`,
+"f8.h3":`Photo calorie recognition`,"f8.p":`Snap a meal, get calories and protein back in seconds. A dedicated vision model handles multi-item plates accurately — no more manual food logging.`,"f8.s1":`vision model`,"f8.s2":`accurate on multi-item plates`,
+"f9.h3":`AI-built training plans`,"f9.p":`Not a template. Each weekly plan is matched from the real library, built around your fitness age, recovery and goals — what to train, how many sets and reps, all tuned to you.`,"f9.s1":`weekly fresh plans`,"f9.s2":`tuned to your recovery`,
 "loop.eyebrow":`The Loop`,"loop.h2":`Test, train, retest — <span class="accent">watch your number move</span>`,"loop.lede":`Not another check-in, but a loop that genuinely makes you younger. Fitness-age algorithm + recovery model, bound together — nobody can copy it.`,
 "step1.h":`Test`,"step1.p":`Complete the 10 fitness tests to get your baseline.`,"step1.ex":`Baseline: 38`,
 "step2.h":`Train`,"step2.p":`Each day, the AI coach builds a plan around your recovery.`,"step2.ex":`21-day plan`,
@@ -845,13 +872,16 @@ const I18N = {
 "t1":`シットトゥスタンド`,"t2":`片脚立ち`,"t3":`腕立て伏せ`,"t4":`プランク`,"t5":`座位体前屈`,"t6":`6 分間歩行`,"t7":`握力`,"t8":`ステップテスト`,"t9":`スクワット`,"t10":`レッグレイズ`,
 "dimshort.lower":`下肢`,"dimshort.upper":`上肢`,"dimshort.core":`体幹`,"dimshort.flex":`柔軟`,"dimshort.balance":`バランス`,"dimshort.cardio":`心肺`,
 "dim.lower":`下肢筋力`,"dim.upper":`上肢筋力`,"dim.core":`体幹`,"dim.flex":`柔軟性`,"dim.balance":`バランス`,"dim.cardio":`心肺`,
-"feat.eyebrow":`機能`,"feat.h2":`賢く、プライベート、<span class="accent">体を本当に理解する</span>`,"feat.lede":`必要なものは全部――体力年齢、回復トレーニング、ローカル LLM コーチ。不要なもの（クラウド、トラッキング、サブスク）は一切なし。`,
+"feat.eyebrow":`機能`,"feat.h2":`賢く、プライベート、<span class="accent">体を本当に理解する</span>`,"feat.lede":`必要なものは全部――体力年齢、回復トレーニング、1300+ 種目ライブラリ、写真カロリー認識、ローカル LLM コーチ。不要なもの（クラウド、トラッキング、サブスク）は一切なし。`,
 "f1.h3":`体力年齢アルゴリズム`,"f1.p":`10 種のテスト、6 次元、7 年齢帯、性別区分、140 の基準値。市場で唯一、定量化された「体の年齢」。他社にはなく、真似もできない。`,"f1.s1":`種テスト`,"f1.s2":`次元`,"f1.s3":`基準値`,
 "f2.h3":`回復ドリブン・トレーニング`,"f2.p":`回復してなければ練しない。睡眠・心拍・主観的疲労から回復スコアを算出し、負荷を上げるべきか、ストレッチで休むべきかを教えます。真の洞察、ただの飾りではない。`,"f2.s1":`回復 ≥ 40`,"f2.s2":`→ 強度アップ`,"f2.s3":`それ以外 → アクティブリカバリー`,
 "f3.h3":`ローカル LLM の AI コーチ`,"f3.p":`一つを極める。端末上で Qwen シリーズのローカルモデル（llama.cpp）を動かし、通信も API キーも不要、会話は端末から出ない。より強力なモデルがいい？ 自前キーでリモートモデルに接続。`,"f3.s1":`ローカル推論`,"f3.s2":`完全オフライン`,
 "f4.h3":`HealthKit 連携の回復度`,"f4.p":`睡眠・心拍・歩数を取り込み、回復度を自動で算出。毎日手入力する必要はありません。データが自ら物語ります。`,
 "f5.h3":`推移 + シェアカード`,"f5.p":`体力年齢の推移や回復の曲線が一目でわかります。測定後にシェアカードを一発作成――「私の体は 31 歳」は「5kg 減」より目を引きます。`,
 "f6.h3":`継続は一人じゃない`,"f6.p":`続けると記録が付き、連続記録が途切れると AI コーチがすぐ引き戻します。習慣化は意志力よりフィードバックで。`,
+"f7.h3":`1300+ 種目ライブラリ`,"f7.p":`すべての種目に名称、ステップ解説、コーチングポイントがあります。AI が作るプランは架空ではなく、この実在するライブラリから選ばれます。タップすればやり方が一目でわかります。`,"f7.s1":`種目`,"f7.s2":`ステップ解説`,
+"f8.h3":`写真でカロリー認識`,"f8.p":`食事を撮影するだけで、数秒でカロリーとタンパク質が分かります。専用ビジョンモデルが一品複数料理の皿も正確に認識――手入力の食事記録はもう不要。`,"f8.s1":`ビジョンモデル`,"f8.s2":`複数料理も正確`,
+"f9.h3":`AI 作成のプラン`,"f9.p":`テンプレートではない。毎週のプランは実ライブラリから選ばれ、体力年齢・回復度・目標に合わせて生成――何を、何セット・何レップ行うか、すべてあなた専用。`,"f9.s1":`毎週プラン更新`,"f9.s2":`回復度に合わせ調整`,
 "loop.eyebrow":`コアサイクル`,"loop.h2":`測り、練し、再測定、<span class="accent">数字がどう変わるか見る</span>`,"loop.lede":`ただの記録打卡ではない、本当に若返る閉ループ。体力年齢アルゴリズムと回復モデルを一体化、他社にはコピーできません。`,
 "step1.h":`測る`,"step1.p":`10 種の体力テストを完了し、体力年齢のベースラインを得る。`,"step1.ex":`ベース 38 歳`,
 "step2.h":`練する`,"step2.p":`その日の回復度に合わせ、AI コーチが専用プランを作成。`,"step2.ex":`21 日間のプラン`,
