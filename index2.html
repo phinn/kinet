@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KinetFit — 你的身体几岁了 · 体能年龄 · 本地大模型 · 完全离线</title>
+<title>KinetFit — How old is your body · Fitness age · On-device AI · Fully offline</title>
 <meta name="description" content="">
-<meta property="og:title" content="KinetFit — 你的身体几岁了">
+<meta property="og:title" content="KinetFit — How old is your body">
 <meta property="og:description" content="">
 <meta property="og:type" content="website">
 <style>
@@ -245,9 +245,9 @@
       <a href="#faq" data-i18n="nav.faq">FAQ</a>
     </div>
     <div class="lang-switch">
-      <button data-lang="zh-Hans" class="active">简</button>
+      <button data-lang="zh-Hans">简</button>
       <button data-lang="zh-Hant">繁</button>
-      <button data-lang="en">EN</button>
+      <button data-lang="en" class="active">EN</button>
       <button data-lang="ja">日</button>
     </div>
     <a class="btn btn-apple" href="https://apps.apple.com/app/id6773755689">
@@ -940,13 +940,7 @@ document.querySelectorAll(".lang-switch button").forEach(b=>{
 (function init(){
   let lang = null;
   try{ lang = localStorage.getItem("kf-lang"); }catch(e){}
-  if(!lang){
-    const bl = (navigator.language || "").toLowerCase();
-    if(bl.startsWith("ja")) lang = "ja";
-    else if(bl.startsWith("zh") && bl.includes("hant")) lang = "zh-Hant";
-    else if(bl.startsWith("en")) lang = "en";
-    else lang = "zh-Hans";
-  }
+  if(!lang) lang = "en"; // 默认英语；用户手动切换后会记住
   applyLang(lang);
 })();
 const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
